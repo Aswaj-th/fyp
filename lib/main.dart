@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/admin_dashboard.dart'; // 👈 import it
+import 'pages/sos_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,9 +9,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Admin Dashboard',
+      title: 'SOS',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: DashboardPage(),
+      home: SOSAlertPage(),
     );
   }
 }
