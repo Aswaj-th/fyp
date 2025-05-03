@@ -1,159 +1,206 @@
 import 'package:flutter/material.dart';
 
-class HeadConstableDashboard extends StatelessWidget {
-  final List<Map<String, dynamic>> gridItems = [
+class HeadConstableDashboardPage extends StatelessWidget {
+  final List<Map<String, String>> cases = [
     {
-      'title': 'Dashboard',
-      'subtitle': 'Connect society member',
-      'icon': Icons.dashboard,
+      'id': '234541',
+      'title': 'Theft in Hotel',
+      'status': 'Ongoing',
+      'date': '20/04/24',
     },
     {
-      'title': 'File Complaints',
-      'subtitle': 'Tracks financial contributions, pending dues, and expenses.',
-      'icon': Icons.receipt,
+      'id': '233487',
+      'title': 'Missing Person',
+      'status': 'Pending',
+      'date': '21/04/24',
     },
     {
-      'title': 'Assigned cases',
-      'subtitle': 'Committee members.',
-      'icon': Icons.assignment_turned_in,
+      'id': '232244',
+      'title': 'Assault Case',
+      'status': 'Closed',
+      'date': '18/04/24',
     },
     {
-      'title': 'Investigation Updates',
-      'subtitle': 'Ensures safety by monitoring society',
-      'icon': Icons.visibility,
+      'id': '230111',
+      'title': 'Fraud Complaint',
+      'status': 'Ongoing',
+      'date': '17/04/24',
     },
     {
-      'title': 'Emergency',
-      'subtitle': 'Simplifies communication with the housekeeping team.',
-      'icon': Icons.warning,
+      'id': '229324',
+      'title': 'Cybercrime Fraud',
+      'status': 'Pending',
+      'date': '15/04/24',
     },
   ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(130),
-        child: Container(
-          padding: EdgeInsets.only(top: 50, left: 16, right: 16),
-          decoration: BoxDecoration(color: Color(0xFF002B45)),
+  Widget buildCard(String title, String count, IconData icon, Color color) {
+    return Expanded(
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Padding(
+          padding: EdgeInsets.all(12),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              SizedBox(height: 10),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundImage: AssetImage(
-                      'assets/profile.jpg',
-                    ), // Ensure asset exists
+                  Text(
+                    count,
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "HEAD CONSTABLE",
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "Dev Ambale",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          Icon(Icons.arrow_drop_down, color: Colors.white),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  Stack(
-                    children: [
-                      Icon(Icons.notifications, color: Colors.white, size: 28),
-                      Positioned(
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            "5",
-                            style: TextStyle(color: Colors.white, fontSize: 10),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  SizedBox(width: 8),
+                  Icon(icon, color: color),
                 ],
               ),
             ],
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: GridView.builder(
-          itemCount: gridItems.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 0.95,
-          ),
-          itemBuilder: (context, index) {
-            final item = gridItems[index];
-            return Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Dashboard'),
+        backgroundColor: Color(0xFF002B45),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: [
+              // Top Summary Cards
+              Row(
+                children: [
+                  buildCard(
+                    'Total Assigned\nCases',
+                    '36',
+                    Icons.folder,
+                    Colors.orange,
+                  ),
+                  SizedBox(width: 8),
+                  buildCard(
+                    'Pending\nInvestigations',
+                    '08',
+                    Icons.search,
+                    Colors.blue,
+                  ),
+                ],
               ),
-              child: Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(item['icon'], size: 40, color: Colors.black87),
-                    SizedBox(height: 10),
-                    Text(
-                      item['title'],
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      item['subtitle'],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
+              SizedBox(height: 12),
+              Row(
+                children: [
+                  buildCard(
+                    'Completed\nCases',
+                    '28',
+                    Icons.check_circle,
+                    Colors.green,
+                  ),
+                  SizedBox(width: 8),
+                  buildCard('SOS Alert\nSent', '05', Icons.warning, Colors.red),
+                ],
+              ),
+              SizedBox(height: 20),
+              // Data Table Header
+              Container(
+                width: double.infinity,
+                color: Colors.grey.shade300,
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                child: Row(
+                  children: const [
+                    Expanded(flex: 2, child: Text('Case ID')),
+                    Expanded(flex: 3, child: Text('Title')),
+                    Expanded(flex: 2, child: Text('Status')),
+                    Expanded(flex: 2, child: Text('Assigned')),
+                    Expanded(child: Text('Action')),
                   ],
                 ),
               ),
-            );
-          },
+              // Data Table Rows
+              ...cases.map(
+                (caseItem) => Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(flex: 2, child: Text(caseItem['id']!)),
+                      Expanded(flex: 3, child: Text(caseItem['title']!)),
+                      Expanded(
+                        flex: 2,
+                        child: Row(
+                          children: [
+                            Icon(
+                              caseItem['status'] == 'Closed'
+                                  ? Icons.check
+                                  : caseItem['status'] == 'Pending'
+                                  ? Icons.timelapse
+                                  : Icons.loop,
+                              color:
+                                  caseItem['status'] == 'Closed'
+                                      ? Colors.green
+                                      : caseItem['status'] == 'Pending'
+                                      ? Colors.orange
+                                      : Colors.blue,
+                              size: 16,
+                            ),
+                            SizedBox(width: 4),
+                            Text(caseItem['status']!),
+                          ],
+                        ),
+                      ),
+                      Expanded(flex: 2, child: Text(caseItem['date']!)),
+                      Expanded(child: Icon(Icons.remove_red_eye, size: 20)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: 0, // Dashboard is active
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          // TODO: Add navigation logic here
+        },
+        items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.apps), label: ''),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_repair_service),
-            label: 'Services',
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
+            icon: Icon(Icons.article_outlined),
+            label: 'File Complaint',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment),
+            label: 'Assigned Cases',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Investigation Updates',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications_active),
+            label: 'SOS Alert',
           ),
         ],
       ),

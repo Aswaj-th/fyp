@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'pages/otp_verification_page.dart';
+import 'package:fyp/pages/hc_assigned_cases.dart';
+// import 'package:fyp/pages/hc_dashboard.dart';
+// import 'pages/hc_homepage.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'SOS',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: OTPVerificationPage(phoneNumber: "9207137220"),
+      home: AssignedCasesPage(),
     );
   }
 }
