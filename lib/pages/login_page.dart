@@ -10,60 +10,56 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _phoneController = TextEditingController();
-  bool isLoading = false;
+  bool _isLoading = false;
 
   Future<void> requestOtp() async {
+    if (_isLoading) return;
+
     final phone = _phoneController.text.trim();
 
     if (phone.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please enter your phone number')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your phone number')),
+      );
       return;
     }
 
     setState(() {
-      isLoading = true;
+      _isLoading = true;
     });
 
     try {
+      print(phone);
       final response = await http.post(
-        Uri.parse(
-          'https://policonn.rtnayush.run.place/api/auth/send-otp',
-        ), // <-- Replace this
+        Uri.parse('https://policonn.rtnayush.run.place/api/auth/send-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'phoneNumber': phone}),
       );
 
-      // print(response.statusCode);
-
-      // final data = jsonDecode(response.body);
-      // print(data);
+      print(response);
 
       if (response.statusCode == 201) {
         // Navigate to OTP page
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder:
-                (context) => OTPVerificationPage(
-                  phoneNumber: phone,
-                ), // Replace with your OTP page
+            builder: (context) => OTPVerificationPage(phoneNumber: phone),
           ),
         );
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to send OTP')));
+        final error = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error['message'] ?? 'Failed to send OTP')),
+        );
       }
     } catch (e) {
       print('Error: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Something went wrong')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong. Please try again.')),
+      );
     } finally {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
@@ -136,24 +132,21 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: isLoading ? null : requestOtp,
+                      onPressed: _isLoading ? null : requestOtp,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child:
-                          isLoading
-                              ? const CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              )
-                              : const Text(
-                                'Get OTP',
-                                style: TextStyle(fontSize: 16),
-                              ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            )
+                          : const Text(
+                              'Get OTP',
+                              style: TextStyle(fontSize: 16),
+                            ),
                     ),
                   ),
                 ],

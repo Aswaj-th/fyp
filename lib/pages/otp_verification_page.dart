@@ -21,6 +21,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   final AppController authController = Get.find();
   int _start = 60;
   bool _canResend = false;
+  bool _isLoading = false;
   Timer? _timer;
 
   @override
@@ -48,49 +49,116 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   }
 
   Future<void> verifyOTP() async {
+    if (_isLoading) return;
+
     final otp = _otpController.text.trim();
     final phone = widget.phoneNumber;
 
-    final url = Uri.parse(
-      'https://policonn.rtnayush.run.place/api/auth/validate-otp',
-    );
+    if (otp.isEmpty || otp.length != 6) {
+      Get.snackbar("Error", "Please enter a valid 6-digit OTP");
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
+      print(phone);
+      print(otp);
       final response = await http.post(
-        url,
+        Uri.parse('https://policonn.rtnayush.run.place/api/auth/validate-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'phoneNumber': phone, 'otp': otp}),
       );
 
-      if (response.statusCode == 200) {
+      print(response.statusCode);
+
+      if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        final accessToken = data['access_token'];
+        print('Response data: $data'); // Debug print
+
+        // Access the accessToken from the nested data structure
+        final accessToken = data['data']['accessToken'];
+        print('Access token: $accessToken'); // Debug print
 
         if (accessToken != null) {
           // Decode and get role
           Map<String, dynamic> decodedToken = Jwt.parseJwt(accessToken);
           String role = decodedToken['role'];
+          print('User role: $role'); // Debug print
 
           // Save in global state
           authController.setAuthData(accessToken, role);
 
           // Navigate based on role
-          if (role == 'SUPERADMIN') {
-            Navigator.pushNamed(context, '/admin/home');
-          } else if (role == 'HC') {
-            Navigator.pushNamed(context, '/hc/home');
-          } else if (role == 'SI') {
-            Navigator.pushNamed(context, '/si/menu');
-          } else {
-            Get.snackbar("Unauthorized", "Unknown role: $role");
+          String route;
+          switch (role) {
+            case 'SUPERADMIN':
+              route = '/admin/home';
+              break;
+            case 'HC':
+              route = '/hc/home';
+              break;
+            case 'SI':
+              route = '/si/menu';
+              break;
+            default:
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text("Unknown role: $role")));
+              return;
           }
+
+          print('Navigating to route: $route'); // Debug print
+          // Clear the navigation stack and push the new route
+          Navigator.pushNamedAndRemoveUntil(context, route, (route) => false);
         } else {
-          Get.snackbar("Error", "Token not received");
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Token not received")));
         }
       } else {
-        Get.snackbar("Error", "Invalid OTP");
+        try {
+          final error = jsonDecode(response.body);
+          // Use ScaffoldMessenger instead of Get.snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error['message'] ?? "Invalid OTP")),
+          );
+        } catch (e) {
+          // Fallback if parsing fails
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Invalid OTP")));
+        }
       }
     } catch (e) {
       print(e);
+      Get.snackbar("Error", "Something went wrong. Please try again.");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> resendOTP() async {
+    if (!_canResend) return;
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://policonn.rtnayush.run.place/api/auth/send-otp'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'phoneNumber': widget.phoneNumber}),
+      );
+
+      if (response.statusCode == 201) {
+        startTimer();
+        Get.snackbar("Success", "OTP sent successfully");
+      } else {
+        Get.snackbar("Error", "Failed to resend OTP");
+      }
+    } catch (e) {
       Get.snackbar("Error", "Something went wrong");
     }
   }
@@ -172,17 +240,24 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: verifyOTP,
+                      onPressed: _isLoading ? null : verifyOTP,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Verify',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                      child:
+                          _isLoading
+                              ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              )
+                              : const Text(
+                                'Verify',
+                                style: TextStyle(fontSize: 16),
+                              ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -191,13 +266,13 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                       children: [
                         Text.rich(
                           TextSpan(
-                            text: "Didn’t receive code? ",
+                            text: "Didn't receive code? ",
                             style: const TextStyle(fontSize: 14),
                             children: [
                               TextSpan(
                                 text: "Resend code",
                                 style: TextStyle(
-                                  color: Colors.blue,
+                                  color: _canResend ? Colors.blue : Colors.grey,
                                   decoration:
                                       _canResend
                                           ? TextDecoration.underline
@@ -205,13 +280,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                                 ),
                                 recognizer:
                                     TapGestureRecognizer()
-                                      ..onTap =
-                                          _canResend
-                                              ? () {
-                                                print("Resending code...");
-                                                startTimer();
-                                              }
-                                              : null,
+                                      ..onTap = _canResend ? resendOTP : null,
                               ),
                             ],
                           ),

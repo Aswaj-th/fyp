@@ -14,9 +14,11 @@ import 'package:fyp/pages/si/si_complaints_approval.dart';
 import 'package:fyp/pages/si/si_dashboard.dart';
 import 'package:fyp/pages/si/si_menu.dart';
 import 'package:fyp/pages/sos_page.dart';
+import 'package:get_storage/get_storage.dart';
 // import your login page and any other pages as needed
 
-void main() {
+void main() async {
+  await GetStorage.init();
   Get.put(AppController());
   runApp(MyApp());
 }
@@ -24,12 +26,29 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final authController = Get.find<AppController>();
+    
     return MaterialApp(
       title: 'SOS',
       theme: ThemeData(primarySwatch: Colors.blue),
-
-      // STARTING PAGE: you can change this to LoginScreen or a splash screen later
-      home: AddStationPage(), // Placeholder for routing test
+      home: Obx(() {
+        // If no JWT token, show login page
+        if (authController.jwt.value.isEmpty) {
+          return LoginPage();
+        }
+        
+        // If logged in, show appropriate dashboard based on role
+        switch (authController.userRole.value) {
+          case 'SUPERADMIN':
+            return AdminDashboard();
+          case 'HC':
+            return HCHomepage();
+          case 'SI':
+            return SIMenu();
+          default:
+            return LoginPage();
+        }
+      }),
 
       routes: {
         //auth pages
