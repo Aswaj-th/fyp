@@ -196,7 +196,27 @@ class HCAssignedCasesPage extends StatelessWidget {
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
-          // Handle navigation
+          if (index == 2) return;
+          String? routeName;
+          switch (index) {
+            case 0:
+              routeName = '/hc/dashboard';
+              break;
+            case 1:
+              break;
+            case 3:
+              break;
+            case 4:
+              routeName = '/sos';
+              break;
+          }
+          if (routeName != null) {
+            Navigator.pushNamed(context, routeName);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('This feature is coming soon!')),
+            );
+          }
         },
         items: const [
           BottomNavigationBarItem(

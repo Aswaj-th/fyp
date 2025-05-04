@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.blue),
 
       // STARTING PAGE: you can change this to LoginScreen or a splash screen later
-      home: HCHomepage(), // Placeholder for routing test
+      home: SIMenu(), // Placeholder for routing test
 
       routes: {
         //auth pages

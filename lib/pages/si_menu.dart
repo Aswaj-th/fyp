@@ -7,30 +7,35 @@ class SIMenu extends StatelessWidget {
       'subtitle': 'Connect society member',
       'icon': Icons.grid_view,
       'iconColor': Colors.blue,
+      'path': '/si/dashboard',
     },
     {
-      'title': 'File Complaints',
-      'subtitle': 'Tracks financial contributions, pending dues, and expenses.',
+      'title': 'Complaints for Approval',
+      'subtitle': 'See and approve or reject new complaints',
       'icon': Icons.balance,
       'iconColor': Colors.amber,
+      'path': '/si/complaint-approval',
     },
     {
       'title': 'Assigned cases',
       'subtitle': '9 committee members.',
       'icon': Icons.folder,
       'iconColor': Colors.orange,
+      'path': '/si/assigned-cases',
     },
     {
       'title': 'Investigation Updates',
       'subtitle': 'Ensures safety by monitoring',
       'icon': Icons.search,
       'iconColor': Colors.lightBlue,
+      'path': '',
     },
     {
       'title': 'Emergency',
       'subtitle': 'Simplifies communication with the housekeeping team.',
       'icon': Icons.emergency,
       'iconColor': Colors.redAccent,
+      'path': '/sos',
     },
   ];
 
@@ -115,32 +120,48 @@ class SIMenu extends StatelessWidget {
           ),
           itemBuilder: (context, index) {
             final item = gridItems[index];
-            return Card(
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(item['icon'], size: 40, color: item['iconColor']),
-                    const SizedBox(height: 10),
-                    Text(
-                      item['title'],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+            final String path = item['path'] ?? '';
+
+            return InkWell(
+              onTap: () {
+                if (path.isNotEmpty) {
+                  Navigator.pushNamed(context, path);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('This feature is coming soon!'),
                     ),
-                    const SizedBox(height: 5),
-                    Text(
-                      item['subtitle'],
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
+                  );
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item['icon'], size: 40, color: item['iconColor']),
+                      const SizedBox(height: 10),
+                      Text(
+                        item['title'],
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 5),
+                      Text(
+                        item['subtitle'],
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
