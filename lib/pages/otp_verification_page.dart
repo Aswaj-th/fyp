@@ -76,9 +76,9 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
           // Navigate based on role
           if (role == 'SUPERADMIN') {
             Get.snackbar("Wait", "superadmin dashboard yet to be implemented");
-          } else if (role == 'head_constable') {
+          } else if (role == 'HC') {
             Navigator.pushNamed(context, '/hc/home');
-          } else if (role == 'officer') {
+          } else if (role == 'SI') {
             Navigator.pushNamed(context, '/si/menu');
           } else {
             Get.snackbar("Unauthorized", "Unknown role: $role");
