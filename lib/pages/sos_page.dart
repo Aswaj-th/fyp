@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fyp/components/custom_navigation_bar.dart';
 
 class SOSAlertPage extends StatefulWidget {
   @override
@@ -98,33 +99,8 @@ class _SOSAlertPageState extends State<SOSAlertPage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 4,
-        selectedItemColor: Colors.red,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.description_outlined),
-            label: 'File Complaint',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Assigned Cases',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.visibility),
-            label: 'Investigation Updates',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_active),
-            label: 'SOS Alert',
-          ),
-        ],
+      bottomNavigationBar: CustomNavigationBar(
+        currentIndex: 2,
       ),
     );
   }

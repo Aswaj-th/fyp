@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fyp/components/custom_navigation_bar.dart';
 
 class SIAssignedCasesScreen extends StatelessWidget {
   final List<Map<String, dynamic>> cases = [
@@ -167,60 +168,7 @@ class SIAssignedCasesScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        onTap: (index) {
-          if (index == 2) return;
-
-          String? routeName;
-
-          switch (index) {
-            case 0:
-              routeName = '/si/dashboard';
-              break;
-            case 1:
-              routeName = '';
-              break;
-            case 3:
-              routeName = '';
-              break;
-            case 4:
-              routeName = '/sos';
-              break;
-          }
-
-          if (routeName != null) {
-            Navigator.pushNamed(context, routeName);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('This feature is coming soon!')),
-            );
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Approved\nComplaints',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Assigned\nCases',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Transfer\nCases',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.sos), label: 'SOS\nAlert'),
-        ],
-      ),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 2),
     );
   }
 }

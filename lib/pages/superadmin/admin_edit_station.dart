@@ -5,12 +5,16 @@ import 'package:http/http.dart' as http;
 import 'package:fyp/get.dart';
 import 'package:fyp/config/env.dart';
 
-class AddStationPage extends StatefulWidget {
+class EditStationPage extends StatefulWidget {
+  final Map<String, dynamic> station;
+
+  const EditStationPage({Key? key, required this.station}) : super(key: key);
+
   @override
-  _AddStationPageState createState() => _AddStationPageState();
+  _EditStationPageState createState() => _EditStationPageState();
 }
 
-class _AddStationPageState extends State<AddStationPage> {
+class _EditStationPageState extends State<EditStationPage> {
   final _formKey = GlobalKey<FormState>();
   final authController = Get.find<AppController>();
   bool _isLoading = false;
@@ -31,7 +35,21 @@ class _AddStationPageState extends State<AddStationPage> {
   @override
   void initState() {
     super.initState();
+    _initializeForm();
     _fetchOfficers();
+  }
+
+  void _initializeForm() {
+    _nameController.text = widget.station['name'] ?? '';
+    _addressController.text = widget.station['address'] ?? '';
+    _cityController.text = widget.station['city'] ?? '';
+    _stateController.text = widget.station['state'] ?? '';
+    _countryController.text = widget.station['country'] ?? '';
+    _pincodeController.text = widget.station['pincode'] ?? '';
+    _latitudeController.text = widget.station['latitude']?.toString() ?? '';
+    _longitudeController.text = widget.station['longitude']?.toString() ?? '';
+    _contactNumberController.text = widget.station['contactNumber'] ?? '';
+    _selectedStationHeadId = widget.station['stationHead']?['id']?.toString();
   }
 
   Future<void> _fetchOfficers() async {
@@ -88,8 +106,8 @@ class _AddStationPageState extends State<AddStationPage> {
     });
 
     try {
-      final response = await http.post(
-        Uri.parse('${Env.apiUrl}/police-stations'),
+      final response = await http.put(
+        Uri.parse('${Env.apiUrl}/police-stations/${widget.station['id']}'),
         headers: {
           'Authorization': 'Bearer ${authController.jwt.value}',
           'Content-Type': 'application/json',
@@ -108,20 +126,18 @@ class _AddStationPageState extends State<AddStationPage> {
         }),
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Police station added successfully'),
+            content: Text('Police station updated successfully'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 3),
           ),
         );
         Navigator.pop(context, true);
       } else {
-        print('Status: ${response.statusCode}');
-        print('Body: ${response.body}');
         final errorData = jsonDecode(response.body);
-        final errorMessage = errorData['message'] ?? 'Failed to add police station';
+        final errorMessage = errorData['message'] ?? 'Failed to update police station';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
@@ -133,7 +149,7 @@ class _AddStationPageState extends State<AddStationPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error adding police station: $e'),
+          content: Text('Error updating police station: $e'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ),
@@ -149,7 +165,73 @@ class _AddStationPageState extends State<AddStationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Police Station'),
+        title: Text('Edit Police Station'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Delete Station'),
+                  content: Text('Are you sure you want to delete this station?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        setState(() => _isLoading = true);
+                        try {
+                          final response = await http.delete(
+                            Uri.parse('${Env.apiUrl}/police-stations/${widget.station['id']}'),
+                            headers: {
+                              'Authorization': 'Bearer ${authController.jwt.value}',
+                            },
+                          );
+                          if (response.statusCode == 200) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Station deleted successfully'),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                            Navigator.pop(context, true);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to delete station'),
+                                backgroundColor: Colors.red,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error deleting station: $e'),
+                              backgroundColor: Colors.red,
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        } finally {
+                          setState(() => _isLoading = false);
+                        }
+                      },
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -327,7 +409,7 @@ class _AddStationPageState extends State<AddStationPage> {
                   padding: const EdgeInsets.all(16),
                   child: _isLoading
                       ? CircularProgressIndicator(color: Colors.white)
-                      : Text('Add Station'),
+                      : Text('Update Station'),
                 ),
               ),
             ],
@@ -350,4 +432,4 @@ class _AddStationPageState extends State<AddStationPage> {
     _contactNumberController.dispose();
     super.dispose();
   }
-}
+} 

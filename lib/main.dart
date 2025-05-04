@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fyp/get.dart';
 import 'package:fyp/pages/superadmin/admin_add_officer.dart';
 import 'package:fyp/pages/superadmin/admin_add_station.dart';
+import 'package:fyp/pages/superadmin/admin_stations_list.dart';
+import 'package:fyp/pages/superadmin/admin_users_list.dart';
 import 'package:get/get.dart';
 import 'package:fyp/pages/hc/hc_assigned_cases.dart';
 import 'package:fyp/pages/hc/hc_dashboard.dart';
@@ -69,7 +71,9 @@ class MyApp extends StatelessWidget {
         //ADMIN routes
         '/admin/home': (context) => AdminDashboard(),
         '/admin/addstation': (context) => AddStationPage(),
+        '/admin/stations': (context) => AdminStationsList(),
         '/admin/addofficer': (context) => AddPoliceOfficerPage(),
+        '/admin/officers': (context) => AdminUsersList(),
 
         //SOS
         '/sos': (context) => SOSAlertPage(),

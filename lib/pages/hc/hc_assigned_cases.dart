@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:fyp/get.dart';
+import 'package:fyp/components/custom_navigation_bar.dart';
 
 class HCAssignedCasesPage extends StatelessWidget {
   final List<Map<String, dynamic>> cases = [
@@ -190,53 +193,8 @@ class HCAssignedCasesPage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: CustomNavigationBar(
         currentIndex: 2,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          if (index == 2) return;
-          String? routeName;
-          switch (index) {
-            case 0:
-              routeName = '/hc/dashboard';
-              break;
-            case 1:
-              break;
-            case 3:
-              break;
-            case 4:
-              routeName = '/sos';
-              break;
-          }
-          if (routeName != null) {
-            Navigator.pushNamed(context, routeName);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('This feature is coming soon!')),
-            );
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article),
-            label: 'File Complaint',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Assigned Cases',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Investigation Updates',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.sos), label: 'SOS Alert'),
-        ],
       ),
     );
   }

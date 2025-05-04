@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fyp/components/custom_app_bar.dart';
+import 'package:fyp/components/custom_navigation_bar.dart';
 
 class HCHomepage extends StatelessWidget {
   final List<Map<String, dynamic>> gridItems = [
-    {
-      'title': 'Dashboard',
-      'subtitle': 'Connect society member',
-      'icon': Icons.dashboard,
-      'path': '/hc/dashboard',
-    },
     {
       'title': 'File Complaints',
       'subtitle': 'Tracks financial contributions, pending dues, and expenses.',
@@ -25,80 +21,14 @@ class HCHomepage extends StatelessWidget {
       'subtitle': 'Ensures safety by monitoring society',
       'icon': Icons.visibility,
       'path': '',
-    },
-    {
-      'title': 'Emergency',
-      'subtitle': 'Simplifies communication with the housekeeping team.',
-      'icon': Icons.warning,
-      'path': '/sos',
-    },
+    }
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(130),
-        child: Container(
-          padding: EdgeInsets.only(top: 50, left: 16, right: 16),
-          decoration: BoxDecoration(color: Color(0xFF002B45)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundImage: AssetImage(
-                      'assets/profile.jpg',
-                    ), // Ensure asset exists
-                  ),
-                  SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "HEAD CONSTABLE",
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "Dev Ambale",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          Icon(Icons.arrow_drop_down, color: Colors.white),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  Stack(
-                    children: [
-                      Icon(Icons.notifications, color: Colors.white, size: 28),
-                      Positioned(
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            "5",
-                            style: TextStyle(color: Colors.white, fontSize: 10),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      appBar: CustomAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: GridView.builder(
@@ -157,28 +87,7 @@ class HCHomepage extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.apps), label: ''),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_repair_service),
-            label: 'Services',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
     );
   }
 }

@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:fyp/get.dart';
+import 'package:fyp/config/env.dart';
 
 class AddPoliceOfficerPage extends StatefulWidget {
   @override
@@ -9,60 +12,147 @@ class AddPoliceOfficerPage extends StatefulWidget {
 
 class _AddPoliceOfficerPageState extends State<AddPoliceOfficerPage> {
   final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _badgeController = TextEditingController();
-  final TextEditingController _contactController = TextEditingController();
-
-  String? _selectedRole;
-  String? _selectedStationId;
-  String? _selectedStatus;
-  DateTime? _joiningDate;
-
+  final authController = Get.find<AppController>();
   bool _isLoading = false;
 
-  final List<String> _roles = ['DGP', 'SI', 'HC'];
-  final List<String> _stations = ['Station A', 'Station B'];
-  final List<String> _statuses = ['Active', 'Inactive'];
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _badgeNumberController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  String? _selectedRole;
+  String? _selectedStationId;
+  List<Map<String, dynamic>> stations = [];
+  bool isLoadingStations = true;
+
+  final List<String> _roles = [
+    'SUPERADMIN',
+    'SI',
+    'HC',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStations();
+  }
+
+  Future<void> fetchStations() async {
+    setState(() {
+      isLoadingStations = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('${Env.apiUrl}/police-stations'),
+        headers: {
+          'Authorization': 'Bearer ${authController.jwt.value}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          stations = List<Map<String, dynamic>>.from(data['data']);
+          isLoadingStations = false;
+        });
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to load stations',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        setState(() {
+          isLoadingStations = false;
+        });
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Something went wrong',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      setState(() {
+        isLoadingStations = false;
+      });
+    }
+  }
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedRole == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a role',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+    if (_selectedStationId == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a station',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+    });
 
-    final url = Uri.parse('https://yourapi.com/api/add-officer');
+    final url = Uri.parse('${Env.apiUrl}/users');
 
     final payload = {
       "name": _nameController.text,
       "role": _selectedRole,
-      "badge_number": _badgeController.text,
-      "station_id": _selectedStationId,
-      "contact_number": _contactController.text,
-      "active_status": _selectedStatus,
-      "joining_date": _joiningDate?.toIso8601String(),
+      "badgeNumber": _badgeNumberController.text,
+      "phoneNumber": _phoneNumberController.text,
+      "currentStationId": _selectedStationId,
+      "isActive": true,
     };
 
     try {
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(payload),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authController.jwt.value}',
+        },
+        body: jsonEncode(payload),
       );
 
-      print('Response: ${response.statusCode} - ${response.body}');
-
-      if (response.statusCode == 200) {
-        Navigator.pushReplacementNamed(context, '/officer-list');
+      if (response.statusCode == 201) {
+        Get.snackbar(
+          'Success',
+          'Officer added successfully',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to add officer')));
+        final error = jsonDecode(response.body);
+        Get.snackbar(
+          'Error',
+          error['message'] ?? 'Failed to add officer',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
-      print('Error: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() => _isLoading = false);
   }
 
   @override
@@ -79,108 +169,104 @@ class _AddPoliceOfficerPageState extends State<AddPoliceOfficerPage> {
               Text('Basic Info', style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 16),
               TextFormField(
-                initialValue: 'AutoGen by Backend',
-                readOnly: true,
-                decoration: InputDecoration(labelText: 'Police ID'),
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter name';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 16),
               TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
-                validator:
-                    (val) => val == null || val.isEmpty ? 'Enter name' : null,
+                controller: _badgeNumberController,
+                decoration: InputDecoration(
+                  labelText: 'Badge Number',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter badge number';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneNumberController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter phone number';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedRole,
-                items:
-                    _roles
-                        .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                        .toList(),
-                onChanged: (val) => setState(() => _selectedRole = val),
-                decoration: InputDecoration(labelText: 'Role'),
-                validator: (val) => val == null ? 'Please select a role' : null,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _badgeController,
-                decoration: InputDecoration(labelText: 'Badge Number'),
-                validator:
-                    (val) =>
-                        val == null || val.isEmpty
-                            ? 'Enter badge number'
-                            : null,
-              ),
-              SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedStationId,
-                items:
-                    _stations
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                        .toList(),
-                onChanged: (val) => setState(() => _selectedStationId = val),
-                decoration: InputDecoration(labelText: 'Station ID'),
-                validator:
-                    (val) => val == null ? 'Please select a station' : null,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _contactController,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(labelText: 'Contact Number'),
-                validator:
-                    (val) =>
-                        val == null || val.isEmpty ? 'Enter contact' : null,
-              ),
-              SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedStatus,
-                items:
-                    _statuses
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                        .toList(),
-                onChanged: (val) => setState(() => _selectedStatus = val),
-                decoration: InputDecoration(labelText: 'Active Status'),
-                validator: (val) => val == null ? 'Please select status' : null,
-              ),
-              SizedBox(height: 16),
-              InputDecorator(
-                decoration: InputDecoration(labelText: 'Joining Date'),
-                child: InkWell(
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (picked != null) {
-                      setState(() => _joiningDate = picked);
-                    }
-                  },
-                  child: Text(
-                    _joiningDate == null
-                        ? 'Select Date'
-                        : _joiningDate!.toLocal().toString().split(' ')[0],
-                  ),
+                items: _roles
+                    .map((role) => DropdownMenuItem(
+                          value: role,
+                          child: Text(role),
+                        ))
+                    .toList(),
+                onChanged: (value) => setState(() => _selectedRole = value),
+                decoration: InputDecoration(
+                  labelText: 'Role',
+                  border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a role';
+                  }
+                  return null;
+                },
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 16),
+              isLoadingStations
+                  ? Center(child: CircularProgressIndicator())
+                  : DropdownButtonFormField<String>(
+                      value: _selectedStationId,
+                      items: stations
+                          .map((station) => DropdownMenuItem<String>(
+                                value: station['id'].toString(),
+                                child: Text(station['name']),
+                              ))
+                          .toList(),
+                      onChanged: (value) =>
+                          setState(() => _selectedStationId = value),
+                      decoration: InputDecoration(
+                        labelText: 'Station',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Please select a station';
+                        }
+                        return null;
+                      },
+                    ),
+              SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _submitForm,
-                  child:
-                      _isLoading
-                          ? CircularProgressIndicator(color: Colors.white)
-                          : Text('Add Officer'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                   ),
+                  child: _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text('Add Officer', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],
@@ -188,5 +274,13 @@ class _AddPoliceOfficerPageState extends State<AddPoliceOfficerPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _badgeNumberController.dispose();
+    _phoneNumberController.dispose();
+    super.dispose();
   }
 }

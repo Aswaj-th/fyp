@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fyp/components/custom_app_bar.dart';
+import 'package:fyp/components/custom_navigation_bar.dart';
 
 class SIDashboardFull extends StatelessWidget {
   final List<Map<String, dynamic>> stats = [
@@ -94,64 +96,7 @@ class SIDashboardFull extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(130),
-        child: Container(
-          padding: const EdgeInsets.only(top: 50, left: 16, right: 16),
-          decoration: const BoxDecoration(color: Color(0xFF002B45)),
-          child: Row(
-            children: [
-              const CircleAvatar(
-                radius: 24,
-                backgroundImage: AssetImage('assets/profile.jpg'),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "SENIOR INSPECTOR",
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Dev Ambale",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                      Icon(Icons.arrow_drop_down, color: Colors.white),
-                    ],
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Stack(
-                children: [
-                  const Icon(
-                    Icons.notifications,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  Positioned(
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Text(
-                        "5",
-                        style: TextStyle(color: Colors.white, fontSize: 10),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      appBar: CustomAppBar(),
       body: ListView(
         padding: const EdgeInsets.all(12.0),
         children: [
@@ -257,63 +202,7 @@ class SIDashboardFull extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0, // Update this based on the active page
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        onTap: (index) {
-          if (index == 0) return;
-
-          String? routeName;
-
-          switch (index) {
-            case 1:
-              routeName = '';
-              break;
-            case 2:
-              routeName = '/si/assigned-cases';
-              break;
-            case 3:
-              routeName = '';
-              break;
-            case 4:
-              routeName = '/sos';
-              break;
-          }
-
-          if (routeName != null) {
-            Navigator.pushNamed(context, routeName);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('This feature is coming soon!')),
-            );
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_turned_in),
-            label: 'Approved\nComplaints',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Assigned\nCases',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.folder_shared),
-            label: 'Transfer\nCases',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emergency),
-            label: 'SOS\nAlert',
-          ),
-        ],
-      ),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
     );
   }
 }

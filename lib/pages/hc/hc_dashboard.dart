@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fyp/components/custom_app_bar.dart';
+import 'package:get/get.dart';
+import 'package:fyp/get.dart';
+import 'package:fyp/components/custom_navigation_bar.dart';
 
 class HCDashboardPage extends StatelessWidget {
   final List<Map<String, String>> cases = [
@@ -70,10 +74,7 @@ class HCDashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Dashboard'),
-        backgroundColor: Color(0xFF002B45),
-      ),
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -173,57 +174,7 @@ class HCDashboardPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0, // Dashboard is active
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          if (index == 0) return;
-          String? routeName;
-          switch (index) {
-            case 1:
-              break;
-            case 2:
-              routeName = '/hc/assigned';
-              break;
-            case 3:
-              break;
-            case 4:
-              routeName = '/sos';
-              break;
-          }
-          if (routeName != null) {
-            Navigator.pushNamed(context, routeName);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('This feature is coming soon!')),
-            );
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article_outlined),
-            label: 'File Complaint',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Assigned Cases',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Investigation Updates',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_active),
-            label: 'SOS Alert',
-          ),
-        ],
-      ),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
     );
   }
 }
