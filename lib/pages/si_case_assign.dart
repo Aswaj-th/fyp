@@ -29,7 +29,7 @@ class SIAssignedCasesScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text(
-                    "HEAD CONSTABLE",
+                    "SENIOR INSPECTOR",
                     style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                   Row(
@@ -208,17 +208,17 @@ class SIAssignedCasesScreen extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment),
-            label: 'File Complaint',
+            label: 'Approved\nComplaints',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Assigned Cases',
+            label: 'Assigned\nCases',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: 'Investigation Updates',
+            label: 'Transfer\nCases',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.sos), label: 'SOS Alert'),
+          BottomNavigationBarItem(icon: Icon(Icons.sos), label: 'SOS\nAlert'),
         ],
       ),
     );

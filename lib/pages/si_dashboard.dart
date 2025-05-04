@@ -273,7 +273,7 @@ class SIDashboardFull extends StatelessWidget {
               routeName = '';
               break;
             case 2:
-              routeName = '/assigned-cases';
+              routeName = '/si/assigned-cases';
               break;
             case 3:
               routeName = '';
