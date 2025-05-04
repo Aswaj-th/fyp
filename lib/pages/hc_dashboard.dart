@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class HeadConstableDashboardPage extends StatelessWidget {
+class HCDashboardPage extends StatelessWidget {
   final List<Map<String, String>> cases = [
     {
       'id': '234541',

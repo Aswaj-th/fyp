@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class SeniorInspectorDashboard extends StatelessWidget {
+class SIMenu extends StatelessWidget {
   final List<Map<String, dynamic>> gridItems = [
     {
       'title': 'Dashboard',

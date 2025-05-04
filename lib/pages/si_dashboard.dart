@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class SeniorInspectorDashboardFull extends StatelessWidget {
+class SIDashboardFull extends StatelessWidget {
   final List<Map<String, dynamic>> stats = [
     {
       'title': 'Total Complaints',

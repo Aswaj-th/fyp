@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class DashboardPage extends StatelessWidget {
+class AdminDashboard extends StatelessWidget {
   final List<Map<String, dynamic>> gridItems = [
     {
       'title': 'Dashboard',

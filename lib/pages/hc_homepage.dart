@@ -1,31 +1,36 @@
 import 'package:flutter/material.dart';
 
-class HeadConstableHomepage extends StatelessWidget {
+class HCHomepage extends StatelessWidget {
   final List<Map<String, dynamic>> gridItems = [
     {
       'title': 'Dashboard',
       'subtitle': 'Connect society member',
       'icon': Icons.dashboard,
+      'path': '/hc/dashboard',
     },
     {
       'title': 'File Complaints',
       'subtitle': 'Tracks financial contributions, pending dues, and expenses.',
       'icon': Icons.receipt,
+      'path': '',
     },
     {
       'title': 'Assigned cases',
       'subtitle': 'Committee members.',
       'icon': Icons.assignment_turned_in,
+      'path': '/hc/assigned',
     },
     {
       'title': 'Investigation Updates',
       'subtitle': 'Ensures safety by monitoring society',
       'icon': Icons.visibility,
+      'path': '',
     },
     {
       'title': 'Emergency',
       'subtitle': 'Simplifies communication with the housekeeping team.',
       'icon': Icons.warning,
+      'path': '/sos',
     },
   ];
 
@@ -106,29 +111,46 @@ class HeadConstableHomepage extends StatelessWidget {
           ),
           itemBuilder: (context, index) {
             final item = gridItems[index];
-            return Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(item['icon'], size: 40, color: Colors.black87),
-                    SizedBox(height: 10),
-                    Text(
-                      item['title'],
-                      style: TextStyle(fontWeight: FontWeight.bold),
+
+            // Check if the 'path' exists and is not empty before navigation
+            return GestureDetector(
+              onTap: () {
+                // If path is not empty, navigate to the desired screen
+                if (item['path'] != null && item['path'].isNotEmpty) {
+                  Navigator.pushNamed(context, item['path']);
+                } else {
+                  // If no path, show a snackbar or some other action
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('No screen available for ${item['title']}'),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      item['subtitle'],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
-                  ],
+                  );
+                }
+              },
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item['icon'], size: 40, color: Colors.black87),
+                      SizedBox(height: 10),
+                      Text(
+                        item['title'],
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        item['subtitle'],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

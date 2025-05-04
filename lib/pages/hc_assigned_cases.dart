@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AssignedCasesPage extends StatelessWidget {
+class HCAssignedCasesPage extends StatelessWidget {
   final List<Map<String, dynamic>> cases = [
     {
       "id": "202401",

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AssignedCasesScreen extends StatelessWidget {
+class SIAssignedCasesScreen extends StatelessWidget {
   final List<Map<String, dynamic>> cases = [
     {'type': 'Theft', 'assignable': true},
     {'type': 'Missing', 'assignable': true},
