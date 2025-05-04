@@ -173,6 +173,34 @@ class SIAssignedCasesScreen extends StatelessWidget {
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
+        onTap: (index) {
+          if (index == 2) return;
+
+          String? routeName;
+
+          switch (index) {
+            case 0:
+              routeName = '/si/dashboard';
+              break;
+            case 1:
+              routeName = '';
+              break;
+            case 3:
+              routeName = '';
+              break;
+            case 4:
+              routeName = '/sos';
+              break;
+          }
+
+          if (routeName != null) {
+            Navigator.pushNamed(context, routeName);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('This feature is coming soon!')),
+            );
+          }
+        },
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
