@@ -75,7 +75,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
 
           // Navigate based on role
           if (role == 'SUPERADMIN') {
-            Get.snackbar("Wait", "superadmin dashboard yet to be implemented");
+            Navigator.pushNamed(context, '/admin/home');
           } else if (role == 'HC') {
             Navigator.pushNamed(context, '/hc/home');
           } else if (role == 'SI') {
