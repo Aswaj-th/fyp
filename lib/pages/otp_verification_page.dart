@@ -1,6 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:fyp/get.dart'; // adjust path if needed
 
 class OTPVerificationPage extends StatefulWidget {
   final String phoneNumber;
@@ -13,6 +18,7 @@ class OTPVerificationPage extends StatefulWidget {
 
 class _OTPVerificationPageState extends State<OTPVerificationPage> {
   final TextEditingController _otpController = TextEditingController();
+  final AppController authController = Get.find();
   int _start = 60;
   bool _canResend = false;
   Timer? _timer;
@@ -41,6 +47,54 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     });
   }
 
+  Future<void> verifyOTP() async {
+    final otp = _otpController.text.trim();
+    final phone = widget.phoneNumber;
+
+    final url = Uri.parse(
+      'https://policonn.rtnayush.run.place/api/auth/validate-otp',
+    );
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'phoneNumber': phone, 'otp': otp}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final accessToken = data['access_token'];
+
+        if (accessToken != null) {
+          // Decode and get role
+          Map<String, dynamic> decodedToken = Jwt.parseJwt(accessToken);
+          String role = decodedToken['role'];
+
+          // Save in global state
+          authController.setAuthData(accessToken, role);
+
+          // Navigate based on role
+          if (role == 'SUPERADMIN') {
+            Navigator.pushNamed(context, '/admin/home');
+          } else if (role == 'HC') {
+            Navigator.pushNamed(context, '/hc/home');
+          } else if (role == 'SI') {
+            Navigator.pushNamed(context, '/si/menu');
+          } else {
+            Get.snackbar("Unauthorized", "Unknown role: $role");
+          }
+        } else {
+          Get.snackbar("Error", "Token not received");
+        }
+      } else {
+        Get.snackbar("Error", "Invalid OTP");
+      }
+    } catch (e) {
+      print(e);
+      Get.snackbar("Error", "Something went wrong");
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -51,7 +105,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF00283C), // top background
+      backgroundColor: Color(0xFF00283C),
       body: Column(
         children: [
           Expanded(flex: 1, child: Container()),
@@ -118,10 +172,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        print("OTP entered: ${_otpController.text}");
-                        // Proceed with verification
-                      },
+                      onPressed: verifyOTP,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: RoundedRectangleBorder(

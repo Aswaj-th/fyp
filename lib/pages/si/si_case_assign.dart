@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AssignedCasesScreen extends StatelessWidget {
+class SIAssignedCasesScreen extends StatelessWidget {
   final List<Map<String, dynamic>> cases = [
     {'type': 'Theft', 'assignable': true},
     {'type': 'Missing', 'assignable': true},
@@ -29,7 +29,7 @@ class AssignedCasesScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text(
-                    "HEAD CONSTABLE",
+                    "SENIOR INSPECTOR",
                     style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                   Row(
@@ -173,6 +173,34 @@ class AssignedCasesScreen extends StatelessWidget {
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
+        onTap: (index) {
+          if (index == 2) return;
+
+          String? routeName;
+
+          switch (index) {
+            case 0:
+              routeName = '/si/dashboard';
+              break;
+            case 1:
+              routeName = '';
+              break;
+            case 3:
+              routeName = '';
+              break;
+            case 4:
+              routeName = '/sos';
+              break;
+          }
+
+          if (routeName != null) {
+            Navigator.pushNamed(context, routeName);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('This feature is coming soon!')),
+            );
+          }
+        },
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
@@ -180,17 +208,17 @@ class AssignedCasesScreen extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment),
-            label: 'File Complaint',
+            label: 'Approved\nComplaints',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Assigned Cases',
+            label: 'Assigned\nCases',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: 'Investigation Updates',
+            label: 'Transfer\nCases',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.sos), label: 'SOS Alert'),
+          BottomNavigationBarItem(icon: Icon(Icons.sos), label: 'SOS\nAlert'),
         ],
       ),
     );

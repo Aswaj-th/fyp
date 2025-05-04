@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class HeadConstableDashboardPage extends StatelessWidget {
+class HCDashboardPage extends StatelessWidget {
   final List<Map<String, String>> cases = [
     {
       'id': '234541',
@@ -179,7 +179,27 @@ class HeadConstableDashboardPage extends StatelessWidget {
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
-          // TODO: Add navigation logic here
+          if (index == 0) return;
+          String? routeName;
+          switch (index) {
+            case 1:
+              break;
+            case 2:
+              routeName = '/hc/assigned';
+              break;
+            case 3:
+              break;
+            case 4:
+              routeName = '/sos';
+              break;
+          }
+          if (routeName != null) {
+            Navigator.pushNamed(context, routeName);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('This feature is coming soon!')),
+            );
+          }
         },
         items: const [
           BottomNavigationBarItem(

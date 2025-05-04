@@ -1,18 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:fyp/pages/otp_verification_page.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _phoneController = TextEditingController();
+  bool isLoading = false;
+
+  Future<void> requestOtp() async {
+    final phone = _phoneController.text.trim();
+
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please enter your phone number')));
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+          'https://policonn.rtnayush.run.place/api/auth/send-otp',
+        ), // <-- Replace this
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'phoneNumber': phone}),
+      );
+
+      // print(response.statusCode);
+
+      // final data = jsonDecode(response.body);
+      // print(data);
+
+      if (response.statusCode == 201) {
+        // Navigate to OTP page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => OTPVerificationPage(
+                  phoneNumber: phone,
+                ), // Replace with your OTP page
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to send OTP')));
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Something went wrong')));
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF00283C), // dark top background
+      backgroundColor: const Color(0xFF00283C),
       body: Column(
         children: [
-          Expanded(
-            flex: 1,
-            child: Container(), // upper empty space for top bg
-          ),
+          const Expanded(flex: 1, child: SizedBox()),
           Expanded(
             flex: 3,
             child: Container(
@@ -55,7 +117,7 @@ class LoginPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
-                      color: Color(0xFFF2F2F2),
+                      color: const Color(0xFFF2F2F2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: TextField(
@@ -74,20 +136,24 @@ class LoginPage extends StatelessWidget {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Add OTP logic here
-                        print("Get OTP for: ${_phoneController.text}");
-                      },
+                      onPressed: isLoading ? null : requestOtp,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Get OTP',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                      child:
+                          isLoading
+                              ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              )
+                              : const Text(
+                                'Get OTP',
+                                style: TextStyle(fontSize: 16),
+                              ),
                     ),
                   ),
                 ],

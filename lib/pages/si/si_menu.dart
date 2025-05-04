@@ -1,31 +1,41 @@
 import 'package:flutter/material.dart';
 
-class HeadConstableHomepage extends StatelessWidget {
+class SIMenu extends StatelessWidget {
   final List<Map<String, dynamic>> gridItems = [
     {
       'title': 'Dashboard',
       'subtitle': 'Connect society member',
-      'icon': Icons.dashboard,
+      'icon': Icons.grid_view,
+      'iconColor': Colors.blue,
+      'path': '/si/dashboard',
     },
     {
-      'title': 'File Complaints',
-      'subtitle': 'Tracks financial contributions, pending dues, and expenses.',
-      'icon': Icons.receipt,
+      'title': 'Complaints for Approval',
+      'subtitle': 'See and approve or reject new complaints',
+      'icon': Icons.balance,
+      'iconColor': Colors.amber,
+      'path': '/si/complaint-approval',
     },
     {
       'title': 'Assigned cases',
-      'subtitle': 'Committee members.',
-      'icon': Icons.assignment_turned_in,
+      'subtitle': '9 committee members.',
+      'icon': Icons.folder,
+      'iconColor': Colors.orange,
+      'path': '/si/assigned-cases',
     },
     {
       'title': 'Investigation Updates',
-      'subtitle': 'Ensures safety by monitoring society',
-      'icon': Icons.visibility,
+      'subtitle': 'Ensures safety by monitoring',
+      'icon': Icons.search,
+      'iconColor': Colors.lightBlue,
+      'path': '',
     },
     {
       'title': 'Emergency',
       'subtitle': 'Simplifies communication with the housekeeping team.',
-      'icon': Icons.warning,
+      'icon': Icons.emergency,
+      'iconColor': Colors.redAccent,
+      'path': '/sos',
     },
   ];
 
@@ -36,25 +46,25 @@ class HeadConstableHomepage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(130),
         child: Container(
-          padding: EdgeInsets.only(top: 50, left: 16, right: 16),
-          decoration: BoxDecoration(color: Color(0xFF002B45)),
+          padding: const EdgeInsets.only(top: 50, left: 16, right: 16),
+          decoration: const BoxDecoration(color: Color(0xFF002B45)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 24,
                     backgroundImage: AssetImage(
                       'assets/profile.jpg',
-                    ), // Ensure asset exists
+                    ), // Ensure this exists
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: const [
                       Text(
-                        "HEAD CONSTABLE",
+                        "SENIOR INSPECTOR",
                         style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                       Row(
@@ -68,19 +78,23 @@ class HeadConstableHomepage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Stack(
                     children: [
-                      Icon(Icons.notifications, color: Colors.white, size: 28),
+                      const Icon(
+                        Icons.notifications,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                       Positioned(
                         right: 0,
                         child: Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
                             color: Colors.green,
                             shape: BoxShape.circle,
                           ),
-                          child: Text(
+                          child: const Text(
                             "5",
                             style: TextStyle(color: Colors.white, fontSize: 10),
                           ),
@@ -98,37 +112,56 @@ class HeadConstableHomepage extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: GridView.builder(
           itemCount: gridItems.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
-            childAspectRatio: 0.95,
+            childAspectRatio: 1.0,
           ),
           itemBuilder: (context, index) {
             final item = gridItems[index];
-            return Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(item['icon'], size: 40, color: Colors.black87),
-                    SizedBox(height: 10),
-                    Text(
-                      item['title'],
-                      style: TextStyle(fontWeight: FontWeight.bold),
+            final String path = item['path'] ?? '';
+
+            return InkWell(
+              onTap: () {
+                if (path.isNotEmpty) {
+                  Navigator.pushNamed(context, path);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('This feature is coming soon!'),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      item['subtitle'],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
-                  ],
+                  );
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item['icon'], size: 40, color: item['iconColor']),
+                      const SizedBox(height: 10),
+                      Text(
+                        item['title'],
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        item['subtitle'],
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -140,13 +173,13 @@ class HeadConstableHomepage extends StatelessWidget {
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
-        items: [
+        type: BottomNavigationBarType.fixed,
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.apps), label: ''),
           BottomNavigationBarItem(
             icon: Icon(Icons.home_repair_service),
             label: 'Services',
