@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fyp/get.dart';
+import 'package:get/get.dart';
 import 'package:fyp/pages/hc_assigned_cases.dart';
 import 'package:fyp/pages/hc_dashboard.dart';
 import 'package:fyp/pages/admin_dashboard.dart';
@@ -13,6 +15,7 @@ import 'package:fyp/pages/sos_page.dart';
 // import your login page and any other pages as needed
 
 void main() {
+  Get.put(AppController());
   runApp(MyApp());
 }
 
@@ -24,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.blue),
 
       // STARTING PAGE: you can change this to LoginScreen or a splash screen later
-      home: SIMenu(), // Placeholder for routing test
+      home: LoginPage(), // Placeholder for routing test
 
       routes: {
         //auth pages
