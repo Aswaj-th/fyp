@@ -129,6 +129,7 @@ class FirService {
   }
 
   Future<Map<String, dynamic>> createFir(Map<String, dynamic> firData) async {
+    print(firData);
     final response = await _makeRequest('POST', '/fir', body: firData);
     return json.decode(response.body);
   }

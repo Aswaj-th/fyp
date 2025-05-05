@@ -1,8 +1,12 @@
+// import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fyp/services/fir_service.dart';
 import 'package:fyp/get.dart';
 import 'package:intl/intl.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:os_mime_type/os_mime_type.dart';
 
 class CreateFirPage extends StatefulWidget {
   @override
@@ -24,6 +28,8 @@ class _CreateFirPageState extends State<CreateFirPage> {
   final _complainantEmailController = TextEditingController();
   final _complainantAddressController = TextEditingController();
   final _actionRequiredController = TextEditingController();
+  List<Map<String, String>> _uploadedFiles =
+      []; // List of { 'url': ..., 'type': ... }
 
   String _selectedGender = 'MALE';
   String _selectedComplaintType = 'CRIMINAL';
@@ -101,6 +107,48 @@ class _CreateFirPageState extends State<CreateFirPage> {
     }
   }
 
+  Future<void> pickImage() async {
+    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+
+    if (result != null) {
+      final files = result.files;
+
+      final supabase = Supabase.instance.client;
+      List<Map<String, String>> uploaded = [];
+
+      for (final file in files) {
+        final fileBytes = file.bytes;
+        final fileName = file.name;
+        final mimeType = mimeFromFileName(fileName: fileName);
+
+        if (fileBytes != null) {
+          final filePath =
+              'fir_attachments/${DateTime.now().millisecondsSinceEpoch}_$fileName';
+
+          await supabase.storage
+              .from('documents')
+              .uploadBinary(
+                filePath,
+                fileBytes,
+                fileOptions: FileOptions(contentType: mimeType),
+              );
+
+          final publicUrl = supabase.storage
+              .from('documents')
+              .getPublicUrl(filePath);
+
+          print(publicUrl);
+
+          uploaded.add({'url': publicUrl, 'type': mimeType});
+        }
+      }
+
+      setState(() {
+        _uploadedFiles = uploaded;
+      });
+    }
+  }
+
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
     if (_incidentDate == null) {
@@ -123,20 +171,12 @@ class _CreateFirPageState extends State<CreateFirPage> {
       final categoryId =
           _categoriesWithIds[_selectedComplaintType]?[_selectedCategory] ?? '';
 
-      // Get the subcategory ID if selected
-      String? subcategoryId;
-      if (_selectedSubCategory != null &&
-          _subCategoriesWithIds.containsKey(_selectedCategory)) {
-        subcategoryId =
-            _subCategoriesWithIds[_selectedCategory]?[_selectedSubCategory];
-      }
-
       final firData = {
         'title': _titleController.text,
         'description': _descriptionController.text,
         'incidentDate':
             _incidentDate!.toIso8601String(), // ISO format as per API spec
-        'address': _addressController.text,
+        'Incidentaddress': _addressController.text,
         'complainantName': _complainantNameController.text,
         'complainantGender': _selectedGender,
         'complainantMobile': _complainantMobileController.text,
@@ -146,11 +186,11 @@ class _CreateFirPageState extends State<CreateFirPage> {
                 : null,
         'complainantAddress': _complainantAddressController.text,
         'complaintType': _selectedComplaintType,
-        'categoryId': categoryId,
-        'subcategoryId': subcategoryId,
+        'category': categoryId,
         'actionRequired': _actionRequiredController.text,
         'stationId': _authController.userInfo['stationId'],
         'originStationId': _authController.userInfo['stationId'],
+        'attachments': _uploadedFiles,
       };
 
       await _firService.createFir(firData);
@@ -539,6 +579,44 @@ class _CreateFirPageState extends State<CreateFirPage> {
                                   return null;
                                 },
                               ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      Card(
+                        elevation: 2,
+                        margin: EdgeInsets.only(bottom: 16),
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Attachments',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              SizedBox(height: 12),
+                              ElevatedButton.icon(
+                                onPressed: pickImage,
+                                icon: Icon(Icons.upload_file),
+                                label: Text('Upload Files'),
+                              ),
+                              SizedBox(height: 12),
+                              if (_uploadedFiles.isNotEmpty)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children:
+                                      _uploadedFiles.map((file) {
+                                        return ListTile(
+                                          leading: Icon(
+                                            Icons.insert_drive_file,
+                                          ),
+                                          title: Text(file['url'] ?? ''),
+                                          subtitle: Text(file['type'] ?? ''),
+                                        );
+                                      }).toList(),
+                                ),
                             ],
                           ),
                         ),

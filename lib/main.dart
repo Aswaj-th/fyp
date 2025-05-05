@@ -20,12 +20,18 @@ import 'package:fyp/pages/si/si_menu.dart';
 import 'package:fyp/pages/sos_page.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:fyp/controllers/auth_controller.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // import your login page and any other pages as needed
 
 void main() async {
   await GetStorage.init();
   Get.put(AppController());
   Get.put(AuthController()); // Initialize AuthController
+  await Supabase.initialize(
+    url: "https://xufmvctnzhyujpqaoowp.supabase.co",
+    anonKey:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1Zm12Y3Ruemh5dWpwcWFvb3dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTI5MzEsImV4cCI6MjA1OTU2ODkzMX0.WTixnRaJOziT4ToxL1o-VMTUR129MSAV_KbdGpJ1yxI",
+  );
   runApp(MyApp());
 }
 
