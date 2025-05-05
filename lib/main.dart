@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/get.dart';
+import 'package:fyp/pages/hc/create_fir_page.dart';
+import 'package:fyp/pages/hc/my_firs_page.dart';
 import 'package:fyp/pages/superadmin/admin_add_officer.dart';
 import 'package:fyp/pages/superadmin/admin_add_station.dart';
 import 'package:fyp/pages/superadmin/admin_stations_list.dart';
@@ -17,11 +19,13 @@ import 'package:fyp/pages/si/si_dashboard.dart';
 import 'package:fyp/pages/si/si_menu.dart';
 import 'package:fyp/pages/sos_page.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:fyp/controllers/auth_controller.dart';
 // import your login page and any other pages as needed
 
 void main() async {
   await GetStorage.init();
   Get.put(AppController());
+  Get.put(AuthController()); // Initialize AuthController
   runApp(MyApp());
 }
 
@@ -29,7 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AppController>();
-    
+
     return MaterialApp(
       title: 'SOS',
       theme: ThemeData(primarySwatch: Colors.blue),
@@ -38,7 +42,7 @@ class MyApp extends StatelessWidget {
         if (authController.jwt.value.isEmpty) {
           return LoginPage();
         }
-        
+
         // If logged in, show appropriate dashboard based on role
         switch (authController.userRole.value) {
           case 'SUPERADMIN':
@@ -59,6 +63,8 @@ class MyApp extends StatelessWidget {
         // HC ROUTES
         '/hc/dashboard': (context) => HCDashboardPage(),
         '/hc/assigned': (context) => HCAssignedCasesPage(),
+        '/hc/create-fir': (context) => CreateFirPage(),
+        '/hc/my-fir': (context) => MyFirsPage(),
         '/hc/home': (context) => HCHomepage(),
 
         // SI ROUTES

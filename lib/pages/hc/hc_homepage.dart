@@ -6,9 +6,15 @@ class HCHomepage extends StatelessWidget {
   final List<Map<String, dynamic>> gridItems = [
     {
       'title': 'File Complaints',
-      'subtitle': 'Tracks financial contributions, pending dues, and expenses.',
+      'subtitle': '',
       'icon': Icons.receipt,
-      'path': '',
+      'path': '/hc/create-fir',
+    },
+    {
+      'title': 'My Filed Complaints',
+      'subtitle': '',
+      'icon': Icons.receipt,
+      'path': '/hc/my-fir',
     },
     {
       'title': 'Assigned cases',
@@ -21,7 +27,7 @@ class HCHomepage extends StatelessWidget {
       'subtitle': 'Ensures safety by monitoring society',
       'icon': Icons.visibility,
       'path': '',
-    }
+    },
   ];
 
   @override
