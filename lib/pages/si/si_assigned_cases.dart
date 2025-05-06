@@ -32,7 +32,7 @@ class SIAssignedCasesScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DataTable(
-                headingRowColor: MaterialStateProperty.all(Colors.blue[100]),
+                headingRowColor: WidgetStateProperty.all(Colors.blue[100]),
                 columnSpacing: 10,
                 columns: const [
                   DataColumn(label: Text("Type")),

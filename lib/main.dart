@@ -13,7 +13,7 @@ import 'package:fyp/pages/superadmin/admin_dashboard.dart';
 import 'package:fyp/pages/hc/hc_homepage.dart';
 import 'package:fyp/pages/login_page.dart';
 import 'package:fyp/pages/si/si_assign_to_hc.dart';
-import 'package:fyp/pages/si/si_case_assign.dart';
+import 'package:fyp/pages/si/si_assigned_cases.dart';
 import 'package:fyp/pages/si/si_complaints_approval.dart';
 import 'package:fyp/pages/si/si_dashboard.dart';
 import 'package:fyp/pages/si/si_menu.dart';

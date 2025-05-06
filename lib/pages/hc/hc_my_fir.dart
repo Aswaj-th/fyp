@@ -24,7 +24,7 @@ class FIR {
   final String complainantAddress;
   final String complaintType;
   final String category;
-  final String notes;
+  final String? notes;
 
   FIR({
     required this.id,
@@ -39,7 +39,7 @@ class FIR {
     required this.complainantAddress,
     required this.complaintType,
     required this.category,
-    required this.notes,
+    this.notes,
   });
 
   factory FIR.fromJson(Map<String, dynamic> json) {
@@ -60,7 +60,10 @@ class FIR {
       complainantAddress: json['complainantAddress'] ?? '',
       complaintType: json['complaintType'] ?? '',
       category: json['category'] ?? '',
-      notes: json['notes'] ?? '',
+      notes:
+          json['notes'] != null && json['notes'].toString().isNotEmpty
+              ? json['notes']
+              : null,
     );
   }
 }
@@ -68,7 +71,7 @@ class FIR {
 // FIR fetching service
 class FirService {
   final authController = Get.find<AppController>();
-  Future<List<FIR>> getFIRsByHC() async {
+  Future<List<dynamic>> getFIRsByHC() async {
     final response = await http
         .get(
           Uri.parse('${Env.apiUrl}/fir/created-by-me'),
@@ -79,13 +82,19 @@ class FirService {
         )
         .timeout(Duration(seconds: 10));
 
+    // print(response.statusCode);
+
+    // print("\n\n\n\n\n\n\n\n\n\n\n" + response.body);
+
     if (response.statusCode == 200) {
-      print(json.decode(response.body));
-      final List<dynamic> data = json.decode(response.body);
-      print(data);
-      return data.map((json) => FIR.fromJson(json)).toList();
+      final Map<String, dynamic> jsonResponse = json.decode(response.body);
+      // print(jsonResponse);
+      final List<dynamic> data = jsonResponse['data'];
+      // print(data[0]['status']);
+      return data;
     } else {
-      print(response.body);
+      // print(response.body);
+      // print("Some error inside here");
       throw Exception('Failed to load FIRs');
     }
   }
@@ -93,23 +102,43 @@ class FirService {
 
 // Page state
 class _FIRListPageState extends State<FIRListPage> {
-  late Future<List<FIR>> _firListFuture;
+  late Future<List<dynamic>> _firListFuture;
 
   @override
   void initState() {
     super.initState();
     _firListFuture = fetchFIRsForHC();
+    print(_firListFuture);
   }
 
-  Future<List<FIR>> fetchFIRsForHC() async {
+  Future<List<dynamic>> fetchFIRsForHC() async {
     return await FirService().getFIRsByHC();
+  }
+
+  Widget buildRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(
+              "$label:",
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          Expanded(flex: 5, child: Text(value)),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("My Filed FIRs")),
-      body: FutureBuilder<List<FIR>>(
+      body: FutureBuilder<List<dynamic>>(
         future: _firListFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -124,17 +153,54 @@ class _FIRListPageState extends State<FIRListPage> {
           return ListView.builder(
             itemCount: firList.length,
             itemBuilder: (context, index) {
-              final fir = firList[index];
+              final fir = firList[index] as Map<String, dynamic>;
+
               return Card(
-                child: ListTile(
-                  title: Text(fir.title),
-                  subtitle: Text(
-                    "Filed on: ${fir.incidentDate.toLocal().toString().split(' ')[0]}",
+                margin: EdgeInsets.all(8),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'FIR Details',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      buildRow('Title', fir['title'] ?? 'N/A'),
+                      buildRow(
+                        'Incident Date',
+                        (fir['incidentDate'] != null)
+                            ? DateTime.parse(
+                              fir['incidentDate'],
+                            ).toLocal().toString().split(' ')[0]
+                            : 'N/A',
+                      ),
+                      buildRow(
+                        'Complainant Name',
+                        fir['complainantName'] ?? 'N/A',
+                      ),
+                      buildRow('Mobile', fir['complainantMobile'] ?? 'N/A'),
+                      buildRow('Gender', fir['complainantGender'] ?? 'N/A'),
+                      buildRow(
+                        'Email',
+                        (fir['complainantEmail']?.isNotEmpty ?? false)
+                            ? fir['complainantEmail']
+                            : 'N/A',
+                      ),
+                      buildRow(
+                        'Incident Address',
+                        fir['incidentAddress'] ?? 'N/A',
+                      ),
+                      buildRow('Complaint Type', fir['complaintType'] ?? 'N/A'),
+                      buildRow('Category', fir['category'] ?? 'N/A'),
+                      if ((fir['notes']?.isNotEmpty ?? false))
+                        buildRow('Notes', fir['notes']),
+                    ],
                   ),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    // Navigate to FIR detail page if needed
-                  },
                 ),
               );
             },
