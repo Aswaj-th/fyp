@@ -196,8 +196,9 @@ class _CreateFirPageState extends State<CreateFirPage> {
 
     try {
       // Get the category ID
-      final categoryId =
-          _categoriesWithIds[_selectedComplaintType]?[_selectedCategory] ?? '';
+      // print(_categoriesWithIds)
+      // final categoryId =
+      //     _categoriesWithIds[_selectedComplaintType]?[_selectedCategory] ?? '';
 
       final firData = {
         'title': _titleController.text,
@@ -214,7 +215,7 @@ class _CreateFirPageState extends State<CreateFirPage> {
                 : null,
         'complainantAddress': _complainantAddressController.text,
         'complaintType': _selectedComplaintType,
-        'category': categoryId,
+        'category': _selectedCategory,
         // 'actionRequired': _actionRequiredController.text,
         // 'stationId': _authController.userInfo['stationId'],
         // 'originStationId': _authController.userInfo['stationId'],
@@ -231,7 +232,7 @@ class _CreateFirPageState extends State<CreateFirPage> {
           duration: Duration(seconds: 3),
         ),
       );
-      Get.back(result: true);
+      Navigator.of(context).pop(true);
     } catch (e) {
       print('Error creating FIR: $e');
       String errorMessage = 'Failed to create FIR';

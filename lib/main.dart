@@ -21,6 +21,7 @@ import 'package:fyp/pages/sos_page.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:fyp/controllers/auth_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fyp/pages/hc/hc_edit_investigation_first.dart';
 // import your login page and any other pages as needed
 
 void main() async {
@@ -72,6 +73,10 @@ class MyApp extends StatelessWidget {
         '/hc/create-fir': (context) => CreateFirPage(),
         '/hc/my-fir': (context) => MyFirsPage(),
         '/hc/home': (context) => HCHomepage(),
+        '/hc/edit-investigation-first': (context) {
+          final firId = ModalRoute.of(context)!.settings.arguments as String;
+          return FIRDetailPage(firId: firId);
+        },
 
         // SI ROUTES
         '/si/dashboard': (context) => SIDashboardFull(),
