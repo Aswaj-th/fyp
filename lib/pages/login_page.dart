@@ -55,7 +55,9 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Something went wrong. Please try again.')),
+        const SnackBar(
+          content: Text('Something went wrong. Please try again.'),
+        ),
       );
     } finally {
       setState(() {
@@ -68,90 +70,121 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF00283C),
-      body: Column(
+      body: Stack(
         children: [
-          const Expanded(flex: 1, child: SizedBox()),
-          Expanded(
-            flex: 3,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(32),
-                  topRight: Radius.circular(32),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Column(
-                      children: const [
-                        SizedBox(height: 10),
-                        Text(
-                          'Log In',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Please Log in to your account',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        SizedBox(height: 32),
-                      ],
-                    ),
-                  ),
-                  const Text(
-                    'Phone Number',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F2F2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: TextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        border: InputBorder.none,
-                        hintText: 'Enter Your Phone Number',
-                        hintStyle: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : requestOtp,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            )
-                          : const Text(
-                              'Get OTP',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                    ),
-                  ),
-                ],
+          // Background Image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/logo.png'),
+                fit: BoxFit.contain,
               ),
             ),
+          ),
+          // Main Content
+          Column(
+            children: [
+              // Top section (empty space at the top)
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    // Empty space where logo was
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(32),
+                      topRight: Radius.circular(32),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Column(
+                          children: const [
+                            SizedBox(height: 10),
+                            Text(
+                              'Log In',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Please Log in to your account',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            SizedBox(height: 32),
+                          ],
+                        ),
+                      ),
+                      const Text(
+                        'Phone Number',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF2F2F2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: TextField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                            ),
+                            border: InputBorder.none,
+                            hintText: 'Enter Your Phone Number',
+                            hintStyle: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : requestOtp,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child:
+                              _isLoading
+                                  ? const CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  )
+                                  : const Text(
+                                    'Get OTP',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
