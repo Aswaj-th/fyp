@@ -7,22 +7,58 @@ class FIRListPage extends StatefulWidget {
   _FIRListPageState createState() => _FIRListPageState();
 }
 
+// Updated FIR model
 class FIR {
   final String id;
   final String title;
   final DateTime incidentDate;
+  final String description;
+  final String incidentAddress;
+  final String complainantName;
+  final String complainantGender;
+  final String complainantMobile;
+  final String complainantEmail;
+  final String complainantAddress;
+  final String complaintType;
+  final String category;
+  final String notes;
 
-  FIR({required this.id, required this.title, required this.incidentDate});
+  FIR({
+    required this.id,
+    required this.title,
+    required this.incidentDate,
+    required this.description,
+    required this.incidentAddress,
+    required this.complainantName,
+    required this.complainantGender,
+    required this.complainantMobile,
+    required this.complainantEmail,
+    required this.complainantAddress,
+    required this.complaintType,
+    required this.category,
+    required this.notes,
+  });
 
   factory FIR.fromJson(Map<String, dynamic> json) {
     return FIR(
       id: json['_id'],
-      title: json['title'],
+      title: json['title'] ?? '',
       incidentDate: DateTime.parse(json['incidentDate']),
+      description: json['description'] ?? '',
+      incidentAddress: json['incidentAddress'] ?? '',
+      complainantName: json['complainantName'] ?? '',
+      complainantGender: json['complainantGender'] ?? '',
+      complainantMobile: json['complainantMobile'] ?? '',
+      complainantEmail: json['complainantEmail'] ?? '',
+      complainantAddress: json['complainantAddress'] ?? '',
+      complaintType: json['complaintType'] ?? '',
+      category: json['category'] ?? '',
+      notes: json['notes'] ?? '',
     );
   }
 }
 
+// FIR fetching service
 class FirService {
   Future<List<FIR>> getFIRsByHC(String hcId) async {
     final response = await http.get(
@@ -39,6 +75,7 @@ class FirService {
   }
 }
 
+// Page state
 class _FIRListPageState extends State<FIRListPage> {
   late Future<List<FIR>> _firListFuture;
 
@@ -49,8 +86,7 @@ class _FIRListPageState extends State<FIRListPage> {
   }
 
   Future<List<FIR>> fetchFIRsForHC() async {
-    final hcId =
-        'your_hc_id_here'; // Replace with actual user ID or fetch from controller
+    final hcId = 'your_hc_id_here'; // Replace with actual user ID
     return await FirService().getFIRsByHC(hcId);
   }
 
@@ -77,7 +113,9 @@ class _FIRListPageState extends State<FIRListPage> {
               return Card(
                 child: ListTile(
                   title: Text(fir.title),
-                  subtitle: Text("Filed on: ${fir.incidentDate.toLocal()}"),
+                  subtitle: Text(
+                    "Filed on: ${fir.incidentDate.toLocal().toString().split(' ')[0]}",
+                  ),
                   trailing: Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     // Navigate to FIR detail page if needed
