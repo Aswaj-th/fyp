@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fyp/components/custom_app_bar.dart';
+import 'package:fyp/components/custom_navigation_bar.dart';
 
 class SIComplaintApprovals extends StatelessWidget {
   final List<Map<String, String>> approvals = List.generate(10, (index) {
@@ -15,64 +17,7 @@ class SIComplaintApprovals extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(120),
-        child: Container(
-          padding: const EdgeInsets.only(top: 50, left: 16, right: 16),
-          decoration: const BoxDecoration(color: Color(0xFF002B45)),
-          child: Row(
-            children: [
-              const CircleAvatar(
-                radius: 24,
-                backgroundImage: AssetImage('assets/profile.jpg'),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "HEAD CONSTABLE",
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Dev Ambale",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                      Icon(Icons.arrow_drop_down, color: Colors.white),
-                    ],
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Stack(
-                children: [
-                  const Icon(
-                    Icons.notifications,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  Positioned(
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Text(
-                        "5",
-                        style: TextStyle(color: Colors.white, fontSize: 10),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      appBar: CustomAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -89,7 +34,7 @@ class SIComplaintApprovals extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DataTable(
-                headingRowColor: MaterialStateProperty.all(Colors.blue[100]),
+                headingRowColor: WidgetStateProperty.all(Colors.blue[100]),
                 columnSpacing: 10,
                 columns: const [
                   DataColumn(label: Text("Type")),
@@ -159,32 +104,7 @@ class SIComplaintApprovals extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'File Complaint',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Assigned Cases',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Investigation Updates',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.sos), label: 'SOS Alert'),
-        ],
-      ),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
     );
   }
 }
