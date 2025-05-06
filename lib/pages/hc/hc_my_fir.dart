@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:fyp/config/env.dart';
+import 'package:fyp/get.dart';
+import 'package:get/get.dart';
 
 class FIRListPage extends StatefulWidget {
   @override
@@ -17,7 +20,7 @@ class FIR {
   final String complainantName;
   final String complainantGender;
   final String complainantMobile;
-  final String complainantEmail;
+  final String? complainantEmail; // nullable
   final String complainantAddress;
   final String complaintType;
   final String category;
@@ -32,7 +35,7 @@ class FIR {
     required this.complainantName,
     required this.complainantGender,
     required this.complainantMobile,
-    required this.complainantEmail,
+    this.complainantEmail, // nullable
     required this.complainantAddress,
     required this.complaintType,
     required this.category,
@@ -49,7 +52,11 @@ class FIR {
       complainantName: json['complainantName'] ?? '',
       complainantGender: json['complainantGender'] ?? '',
       complainantMobile: json['complainantMobile'] ?? '',
-      complainantEmail: json['complainantEmail'] ?? '',
+      complainantEmail:
+          json['complainantEmail'] != null &&
+                  json['complainantEmail'].toString().isNotEmpty
+              ? json['complainantEmail']
+              : null,
       complainantAddress: json['complainantAddress'] ?? '',
       complaintType: json['complaintType'] ?? '',
       category: json['category'] ?? '',
@@ -60,16 +67,25 @@ class FIR {
 
 // FIR fetching service
 class FirService {
-  Future<List<FIR>> getFIRsByHC(String hcId) async {
-    final response = await http.get(
-      Uri.parse('http://10.0.9.48:8080/api/fir/created-by-me'),
-      headers: {'Content-Type': 'application/json'},
-    );
+  final authController = Get.find<AppController>();
+  Future<List<FIR>> getFIRsByHC() async {
+    final response = await http
+        .get(
+          Uri.parse('${Env.apiUrl}/fir/created-by-me'),
+          headers: {
+            'Authorization': 'Bearer ${authController.jwt.value}',
+            'Content-Type': 'application/json',
+          },
+        )
+        .timeout(Duration(seconds: 10));
 
     if (response.statusCode == 200) {
+      print(json.decode(response.body));
       final List<dynamic> data = json.decode(response.body);
+      print(data);
       return data.map((json) => FIR.fromJson(json)).toList();
     } else {
+      print(response.body);
       throw Exception('Failed to load FIRs');
     }
   }
@@ -86,8 +102,7 @@ class _FIRListPageState extends State<FIRListPage> {
   }
 
   Future<List<FIR>> fetchFIRsForHC() async {
-    final hcId = 'your_hc_id_here'; // Replace with actual user ID
-    return await FirService().getFIRsByHC(hcId);
+    return await FirService().getFIRsByHC();
   }
 
   @override

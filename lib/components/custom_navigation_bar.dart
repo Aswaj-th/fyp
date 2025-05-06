@@ -83,7 +83,7 @@ class CustomNavigationBar extends StatelessWidget {
             case 2:
               return '/si/assigned-cases';
             case 3:
-              return '';
+              return '/si/transfer-cases';
             case 4:
               return '/sos';
           }

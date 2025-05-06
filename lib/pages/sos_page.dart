@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/components/custom_navigation_bar.dart';
+import 'package:get/get.dart';
+import 'package:fyp/get.dart';
 
 class SOSAlertPage extends StatefulWidget {
   @override
@@ -24,6 +26,8 @@ class _SOSAlertPageState extends State<SOSAlertPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Get.find<AppController>();
+    final userRole = authController.userRole.value;
     return Scaffold(
       backgroundColor: Colors.red[700],
       appBar: AppBar(
@@ -100,7 +104,7 @@ class _SOSAlertPageState extends State<SOSAlertPage> {
         ),
       ),
       bottomNavigationBar: CustomNavigationBar(
-        currentIndex: 2,
+        currentIndex: userRole == 'SI' ? 4 : 2,
       ),
     );
   }

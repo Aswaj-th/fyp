@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/get.dart';
 import 'package:fyp/pages/hc/create_fir_page.dart';
-import 'package:fyp/pages/hc/my_firs_page.dart';
+import 'package:fyp/pages/hc/hc_my_fir.dart';
 import 'package:fyp/pages/superadmin/admin_add_officer.dart';
 import 'package:fyp/pages/superadmin/admin_add_station.dart';
 import 'package:fyp/pages/superadmin/admin_stations_list.dart';
@@ -22,6 +22,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:fyp/controllers/auth_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fyp/pages/hc/hc_edit_investigation_first.dart';
+import 'package:fyp/pages/si/si_transfer_cases.dart';
 // import your login page and any other pages as needed
 
 void main() async {
@@ -71,7 +72,7 @@ class MyApp extends StatelessWidget {
         '/hc/dashboard': (context) => HCDashboardPage(),
         '/hc/assigned': (context) => HCAssignedCasesPage(),
         '/hc/create-fir': (context) => CreateFirPage(),
-        '/hc/my-fir': (context) => MyFirsPage(),
+        '/hc/my-fir': (context) => FIRListPage(),
         '/hc/home': (context) => HCHomepage(),
         '/hc/edit-investigation-first': (context) {
           final firId = ModalRoute.of(context)!.settings.arguments as String;
@@ -84,6 +85,7 @@ class MyApp extends StatelessWidget {
         '/si/menu': (context) => SIMenu(),
         '/si/assign-to-hc': (context) => SIAssignToHCScreen(),
         '/si/complaint-approval': (context) => SIComplaintApprovals(),
+        '/si/transfer-cases': (context) => TransferCasesPage(),
 
         //ADMIN routes
         '/admin/home': (context) => AdminDashboard(),
