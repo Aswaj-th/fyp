@@ -108,7 +108,10 @@ class _CreateFirPageState extends State<CreateFirPage> {
   }
 
   Future<void> pickImage() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      withData: true,
+    );
 
     if (result != null) {
       final files = result.files;
@@ -120,26 +123,51 @@ class _CreateFirPageState extends State<CreateFirPage> {
         final fileBytes = file.bytes;
         final fileName = file.name;
         final mimeType = mimeFromFileName(fileName: fileName);
+        // print("\n\n\n\n\n\nNo issues till here");
+        // print("filebytes: \n\n\n" + fileBytes.toString());
+        // print("file name \n\n\n" + fileName);
 
         if (fileBytes != null) {
+          print("\n\n\n\n\n\n\nInside if block");
           final filePath =
-              'fir_attachments/${DateTime.now().millisecondsSinceEpoch}_$fileName';
+              'public/${DateTime.now().millisecondsSinceEpoch}_$fileName';
 
-          await supabase.storage
-              .from('documents')
-              .uploadBinary(
-                filePath,
-                fileBytes,
-                fileOptions: FileOptions(contentType: mimeType),
-              );
+          try {
+            final res = await supabase.storage
+                .from('documents')
+                .uploadBinary(
+                  filePath,
+                  fileBytes,
+                  fileOptions: FileOptions(contentType: mimeType),
+                );
 
-          final publicUrl = supabase.storage
-              .from('documents')
-              .getPublicUrl(filePath);
+            print("Upload response: $res");
 
-          print(publicUrl);
+            final fileExists = await supabase.storage
+                .from('documents')
+                .list(path: 'documents')
+                .then(
+                  (files) =>
+                      files.any((f) => f.name == filePath.split('/').last),
+                );
 
-          uploaded.add({'url': publicUrl, 'type': mimeType});
+            print("File exists in bucket: $fileExists");
+
+            final publicUrl = supabase.storage
+                .from('documents')
+                .getPublicUrl(filePath);
+
+            print("\n\n\n\n\n\n" + publicUrl + "\n\n\n\n\n\n\n\n");
+
+            if (fileExists) {
+              uploaded.add({'url': publicUrl, 'type': mimeType});
+              print("File uploaded successfully: $fileName");
+            } else {
+              print("File upload verification failed: $fileName");
+            }
+          } catch (e) {
+            print("error uploading file: $e");
+          }
         }
       }
 
@@ -176,7 +204,7 @@ class _CreateFirPageState extends State<CreateFirPage> {
         'description': _descriptionController.text,
         'incidentDate':
             _incidentDate!.toIso8601String(), // ISO format as per API spec
-        'Incidentaddress': _addressController.text,
+        'incidentAddress': _addressController.text,
         'complainantName': _complainantNameController.text,
         'complainantGender': _selectedGender,
         'complainantMobile': _complainantMobileController.text,
@@ -187,10 +215,11 @@ class _CreateFirPageState extends State<CreateFirPage> {
         'complainantAddress': _complainantAddressController.text,
         'complaintType': _selectedComplaintType,
         'category': categoryId,
-        'actionRequired': _actionRequiredController.text,
-        'stationId': _authController.userInfo['stationId'],
-        'originStationId': _authController.userInfo['stationId'],
-        'attachments': _uploadedFiles,
+        // 'actionRequired': _actionRequiredController.text,
+        // 'stationId': _authController.userInfo['stationId'],
+        // 'originStationId': _authController.userInfo['stationId'],
+        'notes': 'sample for now',
+        // 'attachments': _uploadedFiles,
       };
 
       await _firService.createFir(firData);

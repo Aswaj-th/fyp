@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:fyp/get.dart';
 import 'package:fyp/components/custom_navigation_bar.dart';
 
 class HCAssignedCasesPage extends StatelessWidget {
@@ -193,9 +191,7 @@ class HCAssignedCasesPage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: CustomNavigationBar(
-        currentIndex: 2,
-      ),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 2),
     );
   }
 }
