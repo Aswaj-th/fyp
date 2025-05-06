@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fyp/get.dart';
 import 'package:fyp/pages/hc/create_fir_page.dart';
 import 'package:fyp/pages/hc/hc_my_fir.dart';
+import 'package:fyp/pages/splash_screen.dart';
 import 'package:fyp/pages/superadmin/admin_add_officer.dart';
 import 'package:fyp/pages/superadmin/admin_add_station.dart';
 import 'package:fyp/pages/superadmin/admin_stations_list.dart';
@@ -23,7 +24,7 @@ import 'package:fyp/controllers/auth_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fyp/pages/hc/hc_edit_investigation_first.dart';
 import 'package:fyp/pages/si/si_transfer_cases.dart';
-// import your login page and any other pages as needed
+
 
 void main() async {
   await GetStorage.init();
@@ -34,36 +35,25 @@ void main() async {
     anonKey:
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1Zm12Y3Ruemh5dWpwcWFvb3dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTI5MzEsImV4cCI6MjA1OTU2ODkzMX0.WTixnRaJOziT4ToxL1o-VMTUR129MSAV_KbdGpJ1yxI",
   );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final authController = Get.find<AppController>();
-
     return MaterialApp(
-      title: 'SOS',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: Obx(() {
-        // If no JWT token, show login page
-        if (authController.jwt.value.isEmpty) {
-          return LoginPage();
-        }
-
-        // If logged in, show appropriate dashboard based on role
-        switch (authController.userRole.value) {
-          case 'SUPERADMIN':
-            return AdminDashboard();
-          case 'HC':
-            return HCHomepage();
-          case 'SI':
-            return SIMenu();
-          default:
-            return LoginPage();
-        }
-      }),
-
+      title: 'Police Connect',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          elevation: 0,
+        ),
+      ),
+      debugShowCheckedModeBanner: false,
+      home: const SplashScreen(),
       routes: {
         //auth pages
         '/login': (context) => LoginPage(),

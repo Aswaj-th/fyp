@@ -13,7 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.showBackButton = false,
     this.actions,
-    this.height = 130,
+    this.height = 100,
   }) : super(key: key);
 
   @override
@@ -22,10 +22,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AppController>();
+    final theme = Theme.of(context);
 
     return Container(
-      padding: EdgeInsets.only(top: 50, left: 16, right: 16),
-      decoration: BoxDecoration(color: Color(0xFF002B45)),
+      padding: const EdgeInsets.only(top: 60, left: 16, right: 16, bottom: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF002B45),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -33,91 +44,144 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               if (showBackButton)
                 IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  splashRadius: 24,
                 ),
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: AssetImage('assets/profile.jpg'),
-              ),
-              SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Obx(
-                    () => Text(
-                      authController.userRole.value,
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
+              if (showBackButton) const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 2,
                   ),
-                  Obx(
-                    () => Row(
-                      children: [
-                        Text(
-                          authController.userInfo['name'] ?? 'User',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
+                ),
+                child: const CircleAvatar(
+                  radius: 22,
+                  backgroundImage: AssetImage('assets/profile.jpg'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Obx(
+                      () => Text(
+                        "ROLE: ${authController.userRole.value}",
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
                         ),
-                        PopupMenuButton<String>(
-                          icon: Icon(
-                            Icons.arrow_drop_down,
-                            color: Colors.white,
-                          ),
-                          onSelected: (value) {
-                            if (value == 'logout') {
-                              authController.clearAuthData();
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                '/login',
-                                (route) => false,
-                              );
-                            }
-                          },
-                          itemBuilder: (BuildContext context) => [
-                            PopupMenuItem<String>(
-                              value: 'logout',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.logout, color: Colors.red),
-                                  SizedBox(width: 8),
-                                  Text('Logout'),
-                                ],
-                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Obx(
+                      () => Row(
+                        children: [
+                          Text(
+                            authController.userInfo['name'] ?? 'User',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          PopupMenuButton<String>(
+                            icon: const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
+                            offset: const Offset(0, 40),
+                            elevation: 8,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            onSelected: (value) {
+                              if (value == 'logout') {
+                                authController.clearAuthData();
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/login',
+                                  (route) => false,
+                                );
+                              }
+                            },
+                            itemBuilder:
+                                (BuildContext context) => [
+                                  PopupMenuItem<String>(
+                                    value: 'logout',
+                                    child: Row(
+                                      children: const [
+                                        Icon(Icons.logout, color: Colors.red),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Logout',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Spacer(),
               if (title != null)
                 Text(
                   title!,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               if (actions != null) ...actions!,
+              const SizedBox(width: 8),
               Stack(
                 children: [
-                  Icon(Icons.notifications, color: Colors.white, size: 28),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF002B45).withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.notifications_outlined,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
                   Positioned(
                     right: 0,
                     child: Container(
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
                         color: Colors.green,
                         shape: BoxShape.circle,
                       ),
-                      child: Text(
-                        "5",
-                        style: TextStyle(color: Colors.white, fontSize: 10),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "5",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -129,4 +193,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-} 
+}
