@@ -30,27 +30,9 @@ class AdminDashboard extends StatelessWidget {
     },
     {
       'title': 'All Cases',
-      'subtitle': 'Track financial & dues',
+      'subtitle': 'Track all cases & investigations',
       'icon': Icons.receipt_long,
-      'path': '',
-    },
-    {
-      'title': 'Reports',
-      'subtitle': 'Monitor entry and exit',
-      'icon': Icons.bar_chart,
-      'path': '',
-    },
-    {
-      'title': 'System Logs',
-      'subtitle': 'Communicate with housekeeping',
-      'icon': Icons.note,
-      'path': '',
-    },
-    {
-      'title': 'Setting',
-      'subtitle': 'Report issues',
-      'icon': Icons.settings,
-      'path': '',
+      'path': '/admin/cases',
     },
   ];
 

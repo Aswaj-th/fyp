@@ -80,29 +80,222 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
   }
 
   Future<void> approveComplaint() async {
-    // Fetch head constables before showing the dialog
-    await fetchHeadConstables();
-
-    if (headConstables.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No Head Constables available in your station'),
-          backgroundColor: Colors.red,
+    try {
+      // Show loading dialog while fetching HCs
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
         ),
       );
-      return;
-    }
 
-    // Show dialog to select head constable
-    final selectedHC = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (context) => _buildAssignDialog(),
-    );
+      final response = await http.get(
+        Uri.parse('${Env.apiUrl}/police-stations/head-constables'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authController.jwt.value}',
+        },
+      );
 
-    if (selectedHC != null) {
-      await _updateComplaintStatus(
-        'approve',
-        assignedOfficerId: selectedHC['id'],
+      // Close loading dialog
+      if (mounted) Navigator.pop(context);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          final hcs = data['data']['headConstables'] as List;
+          
+          if (hcs.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No Head Constables available in your station'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          if (!mounted) return;
+
+          // Show enhanced list dialog
+          final selectedHC = await showDialog<Map<String, dynamic>>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Column(
+                children: [
+                  const Text(
+                    'Select Head Constable',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'to assign this case',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: hcs.length,
+                  itemBuilder: (context, index) {
+                    final hc = hcs[index];
+                    final assignedCases = hc['assignedCases'] ?? 0;
+                    final solvedCases = hc['solvedCases'] ?? 0;
+                    
+                    return Card(
+                      elevation: 2,
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => Navigator.pop(context, hc),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundColor: Colors.blue[100],
+                                child: Text(
+                                  hc['name']?.substring(0, 1) ?? 'HC',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      hc['name'] ?? 'Unknown',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Badge: ${hc['badgeNumber'] ?? 'N/A'}',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildStatItem(
+                                            'Assigned',
+                                            assignedCases.toString(),
+                                            Colors.orange,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: _buildStatItem(
+                                            'Solved',
+                                            solvedCases.toString(),
+                                            Colors.green,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+
+          if (selectedHC != null && mounted) {
+            // Show loading dialog while approving
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+
+            // Make the approval API call
+            final approveResponse = await http.patch(
+              Uri.parse(
+                '${Env.apiUrl}/fir/${widget.complaint['id']}/approve/hc/${selectedHC['id']}',
+              ),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ${authController.jwt.value}',
+              },
+            );
+
+            // Close loading dialog
+            if (mounted) Navigator.pop(context);
+
+            if (approveResponse.statusCode == 200) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Case approved and assigned successfully'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              Navigator.pop(context);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to approve case'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Close any open loading dialog
+      if (mounted) Navigator.pop(context);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     }
   }
@@ -123,12 +316,15 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
           'Authorization': 'Bearer ${authController.jwt.value}',
         },
       );
-      print(response.body);
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
           setState(() {
-            headConstables = data['data']['headConstables'] as List;
+            headConstables =
+                data['data']['headConstables'].map((hc) {
+                  return hc;
+                }).toList();
             isFetchingHeadConstables = false;
           });
         } else {
@@ -151,51 +347,6 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
     }
   }
 
-  Widget _buildAssignDialog() {
-    return AlertDialog(
-      title: const Text('Assign Case to Head Constable'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child:
-            isFetchingHeadConstables
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: headConstables.length,
-                  itemBuilder: (context, index) {
-                    final hc = headConstables[index];
-
-                    // Calculate case statistics (in a real app, this would come from the API)
-                    final assignedCases = (index + 1) * 3; // Dummy data
-                    final solvedCases = index * 2; // Dummy data
-
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text(hc['name']?.substring(0, 1) ?? 'HC'),
-                          backgroundColor: Colors.blue,
-                        ),
-                        title: Text(hc['name'] ?? 'Unknown'),
-                        subtitle: Text(
-                          'Badge: ${hc['badgeNumber'] ?? 'N/A'}\nAssigned: $assignedCases cases | Solved: $solvedCases cases',
-                        ),
-                        isThreeLine: true,
-                        onTap: () => Navigator.pop(context, hc),
-                      ),
-                    );
-                  },
-                ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-      ],
-    );
-  }
-
   Future<void> rejectComplaint() async {
     // Show dialog to get rejection reason
     final reason = await showDialog<String>(
@@ -213,25 +364,25 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
     String? reason,
     String? assignedOfficerId,
   }) async {
+    if (!mounted) return;
+
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
 
     try {
-      final String endpoint =
-          action == 'approve'
-              ? '${Env.apiUrl}/fir/${widget.complaint['id']}/approve'
-              : '${Env.apiUrl}/fir/${widget.complaint['id']}/reject';
-
-      final Map<String, dynamic> body = {};
-
-      if (action == 'reject' && reason != null) {
-        body['reason'] = reason;
-      }
+      String endpoint;
+      Map<String, dynamic> body = {};
 
       if (action == 'approve' && assignedOfficerId != null) {
-        body['assignedOfficerId'] = assignedOfficerId;
+        endpoint =
+            '${Env.apiUrl}/fir/${widget.complaint['id']}/approve/hc/$assignedOfficerId';
+      } else if (action == 'reject') {
+        endpoint = '${Env.apiUrl}/fir/${widget.complaint['id']}/reject';
+        body['reason'] = reason;
+      } else {
+        throw Exception('Invalid action or missing required parameters');
       }
 
       final response = await http.patch(
@@ -243,6 +394,8 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
         body: json.encode(body),
       );
 
+      if (!mounted) return;
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
@@ -250,12 +403,12 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Complaint ${action == 'approve' ? 'approved' : 'rejected'} successfully',
+                'Complaint ${action == 'approve' ? 'approved and assigned' : 'rejected'} successfully',
               ),
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context);
+          Navigator.of(context).pop();
         } else {
           setState(() {
             errorMessage = data['message'] ?? 'Failed to ${action} complaint';
@@ -269,6 +422,7 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Error: $e';
         isLoading = false;
@@ -641,5 +795,34 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
       default:
         return Colors.grey;
     }
+  }
+
+  Widget _buildStatItem(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
