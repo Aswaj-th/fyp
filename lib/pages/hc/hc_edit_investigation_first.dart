@@ -1,78 +1,146 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:fyp/config/env.dart';
 import 'package:http/http.dart' as http;
+import 'package:fyp/get.dart';
+import 'package:get/get.dart';
 
-class FIRDetailPage extends StatefulWidget {
+class HCEditInvestigationFirst extends StatefulWidget {
   final String firId;
 
-  const FIRDetailPage({required this.firId, Key? key}) : super(key: key);
+  const HCEditInvestigationFirst({required this.firId, Key? key})
+    : super(key: key);
 
   @override
-  State<FIRDetailPage> createState() => _FIRDetailPageState();
+  State<HCEditInvestigationFirst> createState() =>
+      _HCEditInvestigationFirstState();
 }
 
-class _FIRDetailPageState extends State<FIRDetailPage> {
-  late Future<List<dynamic>> _firDetails;
+class _HCEditInvestigationFirstState extends State<HCEditInvestigationFirst> {
+  final AppController _authController = Get.find<AppController>();
+  bool _isLoading = true;
+  String? _error;
+  Map<String, dynamic>? _firData;
 
   @override
   void initState() {
     super.initState();
-    _firDetails = FirService().getFirDetailsById(widget.firId);
+    _loadFirData();
   }
 
-  Widget _buildMainFIRBox(Map<String, dynamic> fir) {
-    return Card(
-      elevation: 4,
-      margin: EdgeInsets.all(12),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              fir['title'],
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+  Future<void> _loadFirData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('${Env.apiUrl}/fir/${widget.firId}/station'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${_authController.jwt.value}',
+        },
+      );
+
+      // print(response.body);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          setState(() {
+            _firData = data['data'];
+            // print(_firData?['investigations']);
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _error = data['message'] ?? 'Failed to load FIR data';
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _error = 'Server error: ${response.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Error: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
-            SizedBox(height: 8),
-            Text("Description: ${fir['description']}"),
-            Text("Date: ${fir['incidentDate']}"),
-            Text("Address: ${fir['incidentAddress']}"),
-            Text(
-              "Complainant: ${fir['complainantName']} (${fir['complainantGender']})",
-            ),
-            Text("Mobile: ${fir['complainantMobile']}"),
-            if (fir['complainantEmail'] != null)
-              Text("Email: ${fir['complainantEmail']}"),
-            Text("Complainant Address: ${fir['complainantAddress']}"),
-            Text("Complaint Type: ${fir['complaintType']}"),
-            Text("Category: ${fir['category']}"),
-            Text("Notes: ${fir['notes']}"),
-          ],
-        ),
+          ),
+          Expanded(
+            child: Text(value, style: const TextStyle(color: Colors.black54)),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildUpdateBox(Map<String, dynamic> update) {
+  Widget _buildInvestigationCard(Map<String, dynamic> investigation) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: ListTile(
-        title: Text(
-          update['title'],
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 4),
-            Text(update['description']),
-            SizedBox(height: 4),
-            Text("Updated: ${update['updateDate']}"),
-            if (update['isImportant'] == true)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text("★ Important", style: TextStyle(color: Colors.red)),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    investigation['title'] ?? '',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (investigation['isImportant'] == true)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red[100],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'Important',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              investigation['description'] ?? '',
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
+            ),
           ],
         ),
       ),
@@ -82,54 +150,133 @@ class _FIRDetailPageState extends State<FIRDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("FIR Details")),
-      body: FutureBuilder<List<dynamic>>(
-        future: _firDetails,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(child: CircularProgressIndicator());
-          if (snapshot.hasError)
-            return Center(child: Text('Error: ${snapshot.error}'));
-          if (!snapshot.hasData || snapshot.data!.isEmpty)
-            return Center(child: Text('No details found'));
-
-          final data = snapshot.data!;
-          final fir = data.first;
-          final updates = data.sublist(1);
-
-          return ListView(
-            children: [
-              _buildMainFIRBox(fir),
-              ...updates.map((u) => _buildUpdateBox(u)).toList(),
-            ],
-          );
-        },
+      appBar: AppBar(
+        title: const Text("Case Details"),
+        backgroundColor: const Color(0xFF002B45),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/addUpdate', arguments: widget.firId);
-        },
-        child: Icon(Icons.add),
-      ),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(_error!, style: const TextStyle(color: Colors.red)),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: _loadFirData,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              )
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Case Information',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF002B45),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (_firData != null) ...[
+                      _buildDetailRow('Title', _firData!['title'] ?? ''),
+                      _buildDetailRow(
+                        'Description',
+                        _firData!['description'] ?? '',
+                      ),
+                      _buildDetailRow('Type', _firData!['complaintType'] ?? ''),
+                      _buildDetailRow('Status', _firData!['status'] ?? ''),
+                      _buildDetailRow(
+                        'Incident Date',
+                        _firData!['incidentDate'] ?? '',
+                      ),
+                      _buildDetailRow(
+                        'Incident Address',
+                        _firData!['incidentAddress'] ?? '',
+                      ),
+                      _buildDetailRow(
+                        'Complainant Name',
+                        _firData!['complainantName'] ?? '',
+                      ),
+                      _buildDetailRow(
+                        'Complainant Gender',
+                        _firData!['complainantGender'] ?? '',
+                      ),
+                      _buildDetailRow(
+                        'Complainant Mobile',
+                        _firData!['complainantMobile'] ?? '',
+                      ),
+                      if (_firData!['complainantEmail'] != null)
+                        _buildDetailRow(
+                          'Complainant Email',
+                          _firData!['complainantEmail'] ?? '',
+                        ),
+                      _buildDetailRow(
+                        'Complainant Address',
+                        _firData!['complainantAddress'] ?? '',
+                      ),
+                      if (_firData!['approvedDate'] != null)
+                        _buildDetailRow(
+                          'Approved Date',
+                          _firData!['approvedDate'] ?? '',
+                        ),
+                      if (_firData!['notes'] != null &&
+                          _firData!['notes'].toString().isNotEmpty)
+                        _buildDetailRow('Notes', _firData!['notes'] ?? ''),
+                    ],
+                    const SizedBox(height: 32),
+                    if (_firData != null &&
+                        _firData!['investigations'] != null) ...[
+                      const Text(
+                        'Investigations',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF002B45),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ...List<Map<String, dynamic>>.from(
+                            _firData!['investigations'],
+                          )
+                          .map(
+                            (investigation) =>
+                                _buildInvestigationCard(investigation),
+                          )
+                          .toList(),
+                    ],
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/hc/add-investigation',
+                            arguments: widget.firId,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text(
+                          'Add Investigation',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
     );
-  }
-}
-
-class FirService {
-  final String baseUrl = 'http://10.0.9.48:8080'; // Replace with your base URL
-
-  Future<List<dynamic>> getFirDetailsById(String firId) async {
-    final url = Uri.parse('$baseUrl/api/$firId/station');
-
-    final response = await http.get(
-      url,
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body) as List;
-    } else {
-      throw Exception('Failed to fetch FIR details');
-    }
   }
 }

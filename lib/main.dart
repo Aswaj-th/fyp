@@ -29,7 +29,6 @@ import 'package:fyp/pages/si/si_view_hc.dart';
 import 'package:fyp/pages/hc/hc_add_investigation.dart';
 import 'package:fyp/pages/hc/hc_stats.dart';
 
-
 void main() async {
   await GetStorage.init();
   Get.put(AppController());
@@ -67,7 +66,7 @@ class MyApp extends StatelessWidget {
         '/hc/home': (context) => HCHomepage(),
         '/hc/edit-investigation-first': (context) {
           final firId = ModalRoute.of(context)!.settings.arguments as String;
-          return FIRDetailPage(firId: firId);
+          return HCEditInvestigationFirst(firId: firId);
         },
         '/hc/add-investigation': (context) {
           final firId = ModalRoute.of(context)!.settings.arguments as String;
