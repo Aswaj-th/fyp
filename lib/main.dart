@@ -24,7 +24,7 @@ import 'package:fyp/controllers/auth_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fyp/pages/hc/hc_edit_investigation_first.dart';
 import 'package:fyp/pages/si/si_transfer_cases.dart';
-
+import 'package:fyp/pages/si/si_view_hc.dart';
 
 void main() async {
   await GetStorage.init();
@@ -47,10 +47,7 @@ class MyApp extends StatelessWidget {
       title: 'Police Connect',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-        ),
+        appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       ),
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
@@ -76,6 +73,7 @@ class MyApp extends StatelessWidget {
         '/si/assign-to-hc': (context) => SIAssignToHCScreen(),
         '/si/complaint-approval': (context) => SIComplaintApprovals(),
         '/si/transfer-cases': (context) => TransferCasesPage(),
+        '/si/view-hcs': (context) => SIViewHCScreen(),
 
         //ADMIN routes
         '/admin/home': (context) => AdminDashboard(),

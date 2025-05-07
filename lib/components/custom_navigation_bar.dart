@@ -41,7 +41,7 @@ class CustomNavigationBar extends StatelessWidget {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.folder_shared),
-              label: 'Transfer\nCases',
+              label: 'View\HCs',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.emergency),
@@ -83,7 +83,7 @@ class CustomNavigationBar extends StatelessWidget {
             case 2:
               return '/si/assigned-cases';
             case 3:
-              return '/si/transfer-cases';
+              return '/si/view-hcs';
             case 4:
               return '/sos';
           }
