@@ -7,21 +7,20 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fyp/config/env.dart';
 
-class SIDashboardFull extends StatefulWidget {
+class HCStatsPage extends StatefulWidget {
+  const HCStatsPage({Key? key}) : super(key: key);
+
   @override
-  _SIDashboardFullState createState() => _SIDashboardFullState();
+  _HCStatsPageState createState() => _HCStatsPageState();
 }
 
-class _SIDashboardFullState extends State<SIDashboardFull> {
+class _HCStatsPageState extends State<HCStatsPage> {
   final AppController _authController = Get.find<AppController>();
   bool _isLoading = true;
   String? _error;
 
-  // Stats data
-  int _totalComplaints = 0;
-  int _pendingApprovals = 0;
-  int _assignedInvestigations = 0;
-  int _closedCases = 0;
+  int _createdCases = 0;
+  int _assignedCases = 0;
 
   @override
   void initState() {
@@ -36,18 +35,9 @@ class _SIDashboardFullState extends State<SIDashboardFull> {
     });
 
     try {
-      // Fetch all cases for total count
-      final allResponse = await http.get(
-        Uri.parse('${Env.apiUrl}/fir/si-station'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${_authController.jwt.value}',
-        },
-      );
-
-      // Fetch pending cases
-      final pendingResponse = await http.get(
-        Uri.parse('${Env.apiUrl}/fir/si-station?status=PENDING'),
+      // Fetch created cases
+      final createdResponse = await http.get(
+        Uri.parse('${Env.apiUrl}/fir/created-by-me'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${_authController.jwt.value}',
@@ -56,40 +46,22 @@ class _SIDashboardFullState extends State<SIDashboardFull> {
 
       // Fetch assigned cases
       final assignedResponse = await http.get(
-        Uri.parse('${Env.apiUrl}/fir/si-station?status=APPROVED'),
+        Uri.parse('${Env.apiUrl}/fir/assigned-to-me'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${_authController.jwt.value}',
         },
       );
 
-      // Fetch closed cases
-      final closedResponse = await http.get(
-        Uri.parse('${Env.apiUrl}/fir/si-station?status=COMPLETED'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${_authController.jwt.value}',
-        },
-      );
-
-      if (allResponse.statusCode == 200 &&
-          pendingResponse.statusCode == 200 &&
-          assignedResponse.statusCode == 200 &&
-          closedResponse.statusCode == 200) {
-        final allData = json.decode(allResponse.body);
-        final pendingData = json.decode(pendingResponse.body);
+      if (createdResponse.statusCode == 200 &&
+          assignedResponse.statusCode == 200) {
+        final createdData = json.decode(createdResponse.body);
         final assignedData = json.decode(assignedResponse.body);
-        final closedData = json.decode(closedResponse.body);
 
-        if (allData['success'] == true &&
-            pendingData['success'] == true &&
-            assignedData['success'] == true &&
-            closedData['success'] == true) {
+        if (createdData['success'] == true && assignedData['success'] == true) {
           setState(() {
-            _totalComplaints = (allData['data'] as List).length;
-            _pendingApprovals = (pendingData['data'] as List).length;
-            _assignedInvestigations = (assignedData['data'] as List).length;
-            _closedCases = (closedData['data'] as List).length;
+            _createdCases = (createdData['data'] as List).length;
+            _assignedCases = (assignedData['data'] as List).length;
             _isLoading = false;
           });
         } else {
@@ -114,47 +86,20 @@ class _SIDashboardFullState extends State<SIDashboardFull> {
 
   List<Map<String, dynamic>> get stats => [
     {
-      'title': 'Total Complaints',
-      'subtitle': 'All complaints filed under SI jurisdiction',
-      'count': _totalComplaints.toString(),
-      'icon': Icons.folder,
-      'color': Colors.amber,
+      'title': 'Created Cases',
+      'subtitle': 'Total cases created by you',
+      'count': _createdCases.toString(),
+      'icon': Icons.add_circle,
+      'color': Colors.blue,
     },
     {
-      'title': 'Pending Approval',
-      'subtitle': 'Complaints waiting for SI review',
-      'count': _pendingApprovals.toString(),
-      'icon': Icons.search,
-      'color': Colors.lightBlue,
-    },
-    {
-      'title': 'Assigned Investigations',
-      'subtitle': 'Active cases assigned to HCs',
-      'count': _assignedInvestigations.toString(),
+      'title': 'Assigned Cases',
+      'subtitle': 'Cases assigned to you',
+      'count': _assignedCases.toString(),
       'icon': Icons.assignment,
       'color': Colors.green,
     },
-    {
-      'title': 'Closed Cases',
-      'subtitle': 'Marked complete/closed',
-      'count': _closedCases.toString(),
-      'icon': Icons.close,
-      'color': Colors.red,
-    },
   ];
-
-  Color getStatusColor(String status) {
-    switch (status) {
-      case 'green':
-        return Colors.green;
-      case 'red':
-        return Colors.red;
-      case 'yellow':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +127,7 @@ class _SIDashboardFullState extends State<SIDashboardFull> {
                 padding: const EdgeInsets.all(12.0),
                 children: [
                   const Text(
-                    '📊 Dashboard',
+                    '📊 Statistics',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
@@ -240,7 +185,7 @@ class _SIDashboardFullState extends State<SIDashboardFull> {
                   ),
                 ],
               ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
     );
   }
 }

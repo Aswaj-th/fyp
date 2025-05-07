@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fyp/components/custom_navigation_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:fyp/get.dart';
+import 'package:get/get.dart';
+import 'package:fyp/config/env.dart';
+import 'package:intl/intl.dart';
 
 class HCAssignedCasesPage extends StatefulWidget {
   const HCAssignedCasesPage({Key? key}) : super(key: key);
@@ -11,8 +15,10 @@ class HCAssignedCasesPage extends StatefulWidget {
 }
 
 class _HCAssignedCasesPageState extends State<HCAssignedCasesPage> {
+  final AppController _authController = Get.find<AppController>();
   List<Map<String, dynamic>> cases = [];
   bool isLoading = true;
+  String? error;
 
   @override
   void initState() {
@@ -23,23 +29,61 @@ class _HCAssignedCasesPageState extends State<HCAssignedCasesPage> {
   Future<void> fetchAssignedCases() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.9.48:8080/api/fir/assigned-to-me'),
+        Uri.parse('${Env.apiUrl}/fir/assigned-to-me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${_authController.jwt.value}',
+        },
       );
 
+      print(response.body);
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          setState(() {
+            cases = List<Map<String, dynamic>>.from(data['data']);
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            error = data['message'] ?? 'Failed to load cases';
+            isLoading = false;
+          });
+        }
+      } else {
         setState(() {
-          cases = data.cast<Map<String, dynamic>>();
+          error = 'Server error: ${response.statusCode}';
           isLoading = false;
         });
-      } else {
-        throw Exception('Failed to load cases');
       }
     } catch (e) {
       print('Error fetching cases: $e');
       setState(() {
+        error = 'Error: $e';
         isLoading = false;
       });
+    }
+  }
+
+  String _formatId(String id) {
+    if (id.length > 6) {
+      return id.substring(0, 6);
+    }
+    return id;
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'APPROVED':
+        return Colors.orange;
+      case 'COMPLETED':
+        return Colors.green;
+      case 'PROCESSING':
+      case 'VERIFICATION':
+        return Colors.blue;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -80,6 +124,20 @@ class _HCAssignedCasesPageState extends State<HCAssignedCasesPage> {
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
+              : error != null
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(error!, style: const TextStyle(color: Colors.red)),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: fetchAssignedCases,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              )
               : Column(
                 children: [
                   Container(
@@ -90,25 +148,37 @@ class _HCAssignedCasesPageState extends State<HCAssignedCasesPage> {
                     ),
                     child: Row(
                       children: const [
+                        Expanded(flex: 2, child: Text("Case ID")),
                         Expanded(
-                          child: Text(
-                            "Case ID",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Expanded(
+                          flex: 3,
                           child: Text(
                             "Title",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Expanded(
+                          flex: 2,
+                          child: Text(
+                            "Type",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            "Status",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
                           child: Text(
                             "Assigned Date",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Expanded(
+                          flex: 2,
                           child: Text(
                             "Action",
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -129,10 +199,47 @@ class _HCAssignedCasesPageState extends State<HCAssignedCasesPage> {
                           ),
                           child: Row(
                             children: [
-                              Expanded(child: Text(caseItem["id"] ?? '')),
-                              Expanded(child: Text(caseItem["title"] ?? '')),
-                              Expanded(child: Text(caseItem["date"] ?? '')),
                               Expanded(
+                                flex: 2,
+                                child: Text(_formatId(caseItem["id"] ?? '')),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: Text(caseItem["title"] ?? ''),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(caseItem["complaintType"] ?? ''),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: _getStatusColor(
+                                        caseItem["status"] ?? '',
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  caseItem["approvedDate"] != null
+                                      ? DateFormat('yyyy-MM-dd').format(
+                                        DateTime.parse(
+                                          caseItem['approvedDate'],
+                                        ),
+                                      )
+                                      : '',
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
                                 child: InkWell(
                                   onTap: () {
                                     Navigator.pushNamed(

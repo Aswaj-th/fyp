@@ -25,11 +25,11 @@ class SIMenu extends StatelessWidget {
       'path': '/si/assigned-cases',
     },
     {
-      'title': 'Investigation Updates',
-      'subtitle': 'Ensures safety by monitoring',
+      'title': 'View HCs',
+      'subtitle': 'View all head constables',
       'icon': Icons.search,
       'iconColor': Colors.lightBlue,
-      'path': '',
+      'path': '/si/view-hcs',
     },
     {
       'title': 'Emergency',

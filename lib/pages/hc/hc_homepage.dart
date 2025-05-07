@@ -22,12 +22,6 @@ class HCHomepage extends StatelessWidget {
       'icon': Icons.assignment_turned_in,
       'path': '/hc/assigned',
     },
-    {
-      'title': 'Investigation Updates',
-      'subtitle': 'Ensures safety by monitoring society',
-      'icon': Icons.visibility,
-      'path': '',
-    },
   ];
 
   @override

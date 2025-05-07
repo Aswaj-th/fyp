@@ -119,7 +119,7 @@ class FirService {
   final String baseUrl = 'http://10.0.9.48:8080'; // Replace with your base URL
 
   Future<List<dynamic>> getFirDetailsById(String firId) async {
-    final url = Uri.parse('$baseUrl/api/$firId');
+    final url = Uri.parse('$baseUrl/api/$firId/station');
 
     final response = await http.get(
       url,

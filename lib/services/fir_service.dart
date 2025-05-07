@@ -124,7 +124,7 @@ class FirService {
   }
 
   Future<Map<String, dynamic>> getFirById(String id) async {
-    final response = await _makeRequest('GET', '/fir/$id');
+    final response = await _makeRequest('GET', '/fir/$id/station');
     return json.decode(response.body);
   }
 
