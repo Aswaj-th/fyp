@@ -26,7 +26,7 @@ class HCHomepage extends StatelessWidget {
       'title': 'Investigation Updates',
       'subtitle': 'Ensures safety by monitoring society',
       'icon': Icons.visibility,
-      'path': '',
+      'path': '/hc/add-investigation',
     },
   ];
 

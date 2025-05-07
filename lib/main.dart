@@ -25,6 +25,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fyp/pages/hc/hc_edit_investigation_first.dart';
 import 'package:fyp/pages/si/si_transfer_cases.dart';
 import 'package:fyp/pages/si/si_view_hc.dart';
+import 'package:fyp/pages/hc/hc_add_investigation.dart';
 
 void main() async {
   await GetStorage.init();
@@ -65,6 +66,7 @@ class MyApp extends StatelessWidget {
           final firId = ModalRoute.of(context)!.settings.arguments as String;
           return FIRDetailPage(firId: firId);
         },
+        '/hc/add-investigation': (context) => HCAddInvestigation(),
 
         // SI ROUTES
         '/si/dashboard': (context) => SIDashboardFull(),
