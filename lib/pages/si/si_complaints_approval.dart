@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/components/custom_app_bar.dart';
-import 'package:fyp/components/custom_navigation_bar.dart';
 import 'package:fyp/config/env.dart';
 import 'package:fyp/get.dart';
 import 'package:get/get.dart';
@@ -96,9 +95,17 @@ class _SIComplaintApprovalsState extends State<SIComplaintApprovals> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+             Row(
+                      children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
             const Text(
               "Pending Complaint Approvals",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             if (isLoading)
@@ -208,7 +215,7 @@ class _SIComplaintApprovalsState extends State<SIComplaintApprovals> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
+      // bottomNavigationBar: CustomNavigationBar(currentIndex: ),
     );
   }
 }

@@ -240,7 +240,7 @@ class _SIDashboardFullState extends State<SIDashboardFull> {
                   ),
                 ],
               ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/components/custom_app_bar.dart';
-import 'package:fyp/components/custom_navigation_bar.dart';
 import 'package:fyp/get.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -211,9 +210,17 @@ class _SIAssignedCasesScreenState extends State<SIAssignedCasesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Assigned Cases",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                const Text(
+                  "Assigned Cases",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             if (_isLoading)
@@ -326,7 +333,6 @@ class _SIAssignedCasesScreenState extends State<SIAssignedCasesScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 2),
     );
   }
 }

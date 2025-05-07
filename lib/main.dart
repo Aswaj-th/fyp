@@ -76,9 +76,9 @@ class MyApp extends StatelessWidget {
         '/hc/stats': (context) => HCStatsPage(),
 
         // SI ROUTES
+        '/si/home': (context) => SIMenu(),
         '/si/dashboard': (context) => SIDashboardFull(),
         '/si/assigned-cases': (context) => SIAssignedCasesScreen(),
-        '/si/menu': (context) => SIMenu(),
         '/si/assign-to-hc': (context) => SIAssignToHCScreen(),
         '/si/complaint-approval': (context) => SIComplaintApprovals(),
         '/si/transfer-cases': (context) => TransferCasesPage(),

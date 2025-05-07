@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/components/custom_app_bar.dart';
+import 'package:fyp/components/custom_navigation_bar.dart';
 
 class SIMenu extends StatelessWidget {
   final List<Map<String, dynamic>> gridItems = [
@@ -30,14 +31,7 @@ class SIMenu extends StatelessWidget {
       'icon': Icons.search,
       'iconColor': Colors.lightBlue,
       'path': '/si/view-hcs',
-    },
-    {
-      'title': 'Emergency',
-      'subtitle': 'Simplifies communication with the housekeeping team.',
-      'icon': Icons.emergency,
-      'iconColor': Colors.redAccent,
-      'path': '/sos',
-    },
+    }
   ];
 
   @override
@@ -105,28 +99,7 @@ class SIMenu extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_repair_service),
-            label: 'Services',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
     );
   }
 }

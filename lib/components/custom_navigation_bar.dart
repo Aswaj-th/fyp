@@ -27,25 +27,14 @@ class CustomNavigationBar extends StatelessWidget {
           ];
         case 'SI':
           return const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
               icon: Icon(Icons.dashboard),
-              label: 'Dashboard',
+              label: 'Stats',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.assignment_turned_in),
-              label: 'Approved\nComplaints',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list),
-              label: 'Assigned\nCases',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.folder_shared),
-              label: 'View\HCs',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.emergency),
-              label: 'SOS\nAlert',
+              icon: Icon(Icons.notifications_active),
+              label: 'SOS Alert',
             ),
           ];
         case 'HC':
@@ -77,13 +66,9 @@ class CustomNavigationBar extends StatelessWidget {
         case 'SI':
           switch (index) {
             case 0:
-              return '/si/dashboard';
+              return '/si/home';
             case 1:
-              return '/si/complaint-approval';
-            case 2:
-              return '/si/assigned-cases';
-            case 3:
-              return '/si/view-hcs';
+              return '/si/dashboard';
             case 4:
               return '/sos';
           }
