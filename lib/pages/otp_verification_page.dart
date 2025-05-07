@@ -101,7 +101,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
               route = '/hc/home';
               break;
             case 'SI':
-              route = '/si/menu';
+              route = '/si/home';
               break;
             default:
               ScaffoldMessenger.of(
