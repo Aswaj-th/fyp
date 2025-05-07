@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Navigator.pushReplacementNamed(context, '/hc/home');
             break;
           case 'SI':
-            Navigator.pushReplacementNamed(context, '/si/menu');
+            Navigator.pushReplacementNamed(context, '/si/home');
             break;
           default:
             Navigator.pushReplacement(
@@ -109,7 +109,9 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 80), // Push text down to center of visible area
+                  const SizedBox(
+                    height: 80,
+                  ), // Push text down to center of visible area
                   const Text(
                     'Police',
                     style: TextStyle(

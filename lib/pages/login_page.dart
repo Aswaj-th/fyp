@@ -29,14 +29,11 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      print(phone);
       final response = await http.post(
         Uri.parse('https://policonn.rtnayush.run.place/api/auth/send-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'phoneNumber': phone}),
       );
-
-      print(response);
 
       if (response.statusCode == 201) {
         // Navigate to OTP page
