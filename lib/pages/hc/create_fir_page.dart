@@ -28,6 +28,7 @@ class _CreateFirPageState extends State<CreateFirPage> {
   final _complainantEmailController = TextEditingController();
   final _complainantAddressController = TextEditingController();
   final _actionRequiredController = TextEditingController();
+  final _notesController = TextEditingController();
   List<Map<String, String>> _uploadedFiles =
       []; // List of { 'url': ..., 'type': ... }
 
@@ -90,6 +91,7 @@ class _CreateFirPageState extends State<CreateFirPage> {
     _complainantEmailController.dispose();
     _complainantAddressController.dispose();
     _actionRequiredController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -219,7 +221,7 @@ class _CreateFirPageState extends State<CreateFirPage> {
         // 'actionRequired': _actionRequiredController.text,
         // 'stationId': _authController.userInfo['stationId'],
         // 'originStationId': _authController.userInfo['stationId'],
-        'notes': 'sample for now',
+        'notes': _notesController.text,
         // 'attachments': _uploadedFiles,
       };
 
@@ -608,6 +610,16 @@ class _CreateFirPageState extends State<CreateFirPage> {
                                   }
                                   return null;
                                 },
+                              ),
+                              SizedBox(height: 16),
+                              TextFormField(
+                                controller: _notesController,
+                                decoration: InputDecoration(
+                                  labelText: 'Notes',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.note),
+                                ),
+                                maxLines: 2,
                               ),
                             ],
                           ),
