@@ -81,6 +81,15 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
 
   Future<void> approveComplaint() async {
     try {
+      // Show loading dialog while fetching HCs
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
       final response = await http.get(
         Uri.parse('${Env.apiUrl}/police-stations/head-constables'),
         headers: {
@@ -89,11 +98,14 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
         },
       );
 
+      // Close loading dialog
+      if (mounted) Navigator.pop(context);
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
           final hcs = data['data']['headConstables'] as List;
-
+          
           if (hcs.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -110,7 +122,25 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
           final selectedHC = await showDialog<Map<String, dynamic>>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Select Head Constable to Assign this case'),
+              title: Column(
+                children: [
+                  const Text(
+                    'Select Head Constable',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'to assign this case',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
               content: SizedBox(
                 width: double.maxFinite,
                 child: ListView.builder(
@@ -122,23 +152,75 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
                     final solvedCases = hc['solvedCases'] ?? 0;
                     
                     return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blue,
-                          child: Text(hc['name']?.substring(0, 1) ?? 'HC'),
-                        ),
-                        title: Text(hc['name'] ?? 'Unknown'),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Badge: ${hc['badgeNumber'] ?? 'N/A'}'),
-                            Text('Assigned Cases: $assignedCases'),
-                            Text('Solved Cases: $solvedCases'),
-                          ],
-                        ),
-                        isThreeLine: true,
+                      elevation: 2,
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
                         onTap: () => Navigator.pop(context, hc),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundColor: Colors.blue[100],
+                                child: Text(
+                                  hc['name']?.substring(0, 1) ?? 'HC',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      hc['name'] ?? 'Unknown',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Badge: ${hc['badgeNumber'] ?? 'N/A'}',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildStatItem(
+                                            'Assigned',
+                                            assignedCases.toString(),
+                                            Colors.orange,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: _buildStatItem(
+                                            'Solved',
+                                            solvedCases.toString(),
+                                            Colors.green,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -147,13 +229,34 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
           );
 
           if (selectedHC != null && mounted) {
+            // Show loading dialog while approving
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+
             // Make the approval API call
             final approveResponse = await http.patch(
               Uri.parse(
@@ -164,6 +267,9 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
                 'Authorization': 'Bearer ${authController.jwt.value}',
               },
             );
+
+            // Close loading dialog
+            if (mounted) Navigator.pop(context);
 
             if (approveResponse.statusCode == 200) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -185,6 +291,9 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
         }
       }
     } catch (e) {
+      // Close any open loading dialog
+      if (mounted) Navigator.pop(context);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
@@ -686,5 +795,34 @@ class _SIComplaintDetailState extends State<SIComplaintDetail> {
       default:
         return Colors.grey;
     }
+  }
+
+  Widget _buildStatItem(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
