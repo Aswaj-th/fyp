@@ -50,7 +50,6 @@ class _AdminUsersListState extends State<AdminUsersList> {
     });
 
     try {
-      print('Fetching users from: ${Env.apiUrl}/users');
       final response = await http.get(
         Uri.parse('${Env.apiUrl}/users'),
         headers: {

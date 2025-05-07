@@ -24,6 +24,7 @@ import 'package:fyp/controllers/auth_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fyp/pages/hc/hc_edit_investigation_first.dart';
 import 'package:fyp/pages/si/si_transfer_cases.dart';
+import 'package:fyp/pages/superadmin/admin_cases.dart';
 
 
 void main() async {
@@ -83,6 +84,7 @@ class MyApp extends StatelessWidget {
         '/admin/stations': (context) => AdminStationsList(),
         '/admin/addofficer': (context) => AddPoliceOfficerPage(),
         '/admin/officers': (context) => AdminUsersList(),
+        '/admin/cases': (context) => const AdminCasesPage(),
 
         //SOS
         '/sos': (context) => SOSAlertPage(),
