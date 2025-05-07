@@ -19,8 +19,8 @@ class SIMenu extends StatelessWidget {
       'path': '/si/complaint-approval',
     },
     {
-      'title': 'Assigned cases',
-      'subtitle': '9 committee members.',
+      'title': 'All cases',
+      'subtitle': 'View all cases in the station',
       'icon': Icons.folder,
       'iconColor': Colors.orange,
       'path': '/si/assigned-cases',
