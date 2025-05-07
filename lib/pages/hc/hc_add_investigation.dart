@@ -7,7 +7,9 @@ import 'dart:convert';
 import 'package:fyp/config/env.dart';
 
 class HCAddInvestigation extends StatefulWidget {
-  const HCAddInvestigation({Key? key}) : super(key: key);
+  final String caseId;
+
+  const HCAddInvestigation({Key? key, required this.caseId}) : super(key: key);
 
   @override
   _HCAddInvestigationState createState() => _HCAddInvestigationState();
@@ -21,7 +23,6 @@ class _HCAddInvestigationState extends State<HCAddInvestigation> {
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _firIdController = TextEditingController();
   bool _isImportant = false;
 
   Future<void> _submitForm() async {
@@ -42,7 +43,7 @@ class _HCAddInvestigationState extends State<HCAddInvestigation> {
         body: jsonEncode({
           'title': _titleController.text,
           'description': _descriptionController.text,
-          'firId': _firIdController.text,
+          'firId': widget.caseId,
           'isImportant': _isImportant,
         }),
       );
@@ -83,12 +84,12 @@ class _HCAddInvestigationState extends State<HCAddInvestigation> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _firIdController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print(widget.caseId);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(),
@@ -118,21 +119,6 @@ class _HCAddInvestigationState extends State<HCAddInvestigation> {
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
-              TextFormField(
-                controller: _firIdController,
-                decoration: const InputDecoration(
-                  labelText: 'FIR ID',
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter FIR ID',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter FIR ID';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(

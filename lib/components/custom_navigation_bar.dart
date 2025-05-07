@@ -93,7 +93,7 @@ class CustomNavigationBar extends StatelessWidget {
             case 0:
               return '/hc/home';
             case 1:
-              return '/hc/dashboard';
+              return '/hc/stats';
             case 2:
               return '/sos';
           }
