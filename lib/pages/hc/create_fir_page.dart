@@ -153,19 +153,12 @@ class _CreateFirPageState extends State<CreateFirPage> {
                       files.any((f) => f.name == filePath.split('/').last),
                 );
 
-            print("File exists in bucket: $fileExists");
-
             final publicUrl = supabase.storage
                 .from('documents')
                 .getPublicUrl(filePath);
 
-            print("\n\n\n\n\n\n" + publicUrl + "\n\n\n\n\n\n\n\n");
-
             if (fileExists) {
               uploaded.add({'url': publicUrl, 'type': mimeType});
-              print("File uploaded successfully: $fileName");
-            } else {
-              print("File upload verification failed: $fileName");
             }
           } catch (e) {
             print("error uploading file: $e");
